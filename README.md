@@ -1,7 +1,5 @@
 <h1>Beans Merchant JavaScript SDK</h1>
 
-[![npm version](https://badge.fury.io/js/beans-merchant.svg)](https://www.npmjs.com/package/beans-merchant-sdk)
-
 - [Introduction](#introduction)
   - [Use Cases](#use-cases)
 - [Getting Started](#getting-started)
