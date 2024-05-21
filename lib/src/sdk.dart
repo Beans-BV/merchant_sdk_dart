@@ -3,32 +3,49 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'exceptions/api_exception.dart';
-import 'models/domain.dart';
 import 'models/fetch_stellar_currencies_response.dart';
 import 'models/qr_code_response.dart';
 
 class BeansMerchantSdk {
-  BeansMerchantSdk({
-    String? apiDomain,
+  BeansMerchantSdk.custom({
+    required this.apiBaseUrl,
     required this.apiKey,
     http.Client? httpClient,
-  })  : apiDomain = apiDomain ?? BeansMerchantSdkDomain.production,
-        httpClient = httpClient ?? http.Client();
+  }) : httpClient = httpClient ?? http.Client();
 
-  final String apiDomain;
+  factory BeansMerchantSdk.production({
+    required String apiKey,
+    http.Client? httpClient,
+  }) {
+    return BeansMerchantSdk.custom(
+      apiBaseUrl: Uri.https('api.beansapp.com', '/v3'),
+      apiKey: apiKey,
+      httpClient: httpClient,
+    );
+  }
+
+  factory BeansMerchantSdk.staging({
+    required String apiKey,
+    http.Client? httpClient,
+  }) {
+    return BeansMerchantSdk.custom(
+      apiBaseUrl: Uri.https('api.staging.beansapp.com', '/v3'),
+      apiKey: apiKey,
+      httpClient: httpClient,
+    );
+  }
+
+  final Uri apiBaseUrl;
   final String apiKey;
   final http.Client httpClient;
 
   Future<FetchStellarCurrenciesResponse> fetchStellarCurrencies(
     String stellarAccountId,
   ) async {
-    final url = Uri.https(
-      apiDomain,
-      '/v3/companies/me/accounts/$stellarAccountId/stellar-currencies',
-    );
-
     final response = await httpClient.get(
-      url,
+      Uri.parse(
+        '$apiBaseUrl/companies/me/accounts/$stellarAccountId/stellar-currencies',
+      ),
       headers: {
         'X-Beans-Company-Api-Key': apiKey,
       },
@@ -124,13 +141,10 @@ class BeansMerchantSdk {
     String stellarAccountId,
     Map<String, dynamic> body,
   ) async {
-    final url = Uri.https(
-      apiDomain,
-      '/v3/companies/me/accounts/$stellarAccountId/payment-request',
-    );
-
     final response = await httpClient.post(
-      url,
+      Uri.parse(
+        '$apiBaseUrl/companies/me/accounts/$stellarAccountId/payment-request',
+      ),
       headers: {
         'Content-Type': 'application/json',
         'X-Beans-Company-Api-Key': apiKey,

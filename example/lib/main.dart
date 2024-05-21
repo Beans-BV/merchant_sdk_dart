@@ -69,23 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _initSdk() {
-    String apiDomain;
     switch (selectedEnvironment) {
-      case 'staging':
-        apiDomain = BeansMerchantSdkDomain.staging;
-        break;
       case 'production':
-        apiDomain = BeansMerchantSdkDomain.production;
+        sdk = BeansMerchantSdk.production(
+          apiKey: apiKeyController.text,
+        );
         break;
       default:
-        apiDomain = BeansMerchantSdkDomain.staging;
+        sdk = BeansMerchantSdk.staging(
+          apiKey: apiKeyController.text,
+        );
     }
-
-    sdk = BeansMerchantSdk(
-      apiDomain: apiDomain,
-      apiKey: apiKeyController.text,
-    );
-
     unawaited(
       _loadInitialData(),
     );
@@ -110,6 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text('${currency.name} (${currency.code})'),
           ),
       ];
+      selectedCurrency = stellarCurrenciesDropdownItems?.first.value;
       setState(() {});
     } catch (e) {
       errorMessage = 'Error fetching stellar currencies: $e';
