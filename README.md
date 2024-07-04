@@ -1,4 +1,4 @@
-<h1>Beans Merchant JavaScript SDK</h1>
+<h1>Beans Merchant Dart SDK</h1>
 
 - [Introduction](#introduction)
   - [Use Cases](#use-cases)
