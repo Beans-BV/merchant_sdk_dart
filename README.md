@@ -19,6 +19,9 @@
       - [Generate PNG QR Code](#generate-png-qr-code)
       - [Generate SVG QR Code](#generate-svg-qr-code)
   - [Webhook Notifications](#webhook-notifications)
+- [Examples](#examples)
+  - [Deposit](#deposit)
+  - [Developer](#developer)
 - [Questions and Answers](#questions-and-answers)
   - [Do I have to use stroops?](#do-i-have-to-use-stroops)
 
@@ -257,6 +260,22 @@ Example Webhook Payload:<br>
   "TransactionHash": "b7f4e42935eb120e3a6f43cdae3c6a511a346da77b7e17299aff0f8c72dcf3c0"
 }
 ```
+
+# Examples
+
+We've provided examples to help you understand what you as a business can do with the Beans Merchant SDK.
+
+## Deposit
+
+We've added an example that showcases a simple deposit flow for a fictional decentralized exchange. This shows you how easy it is to generate a payment request for something like a deposit.
+
+Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/deposit.dart).
+
+## Developer
+
+We've added an advanced example that showcases all the features of the Beans Merchant SDK. This example demonstrates how you can use the SDK to generate a payment request, a QR code, and a deeplink.
+
+Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/developer.dart).
 
 # Questions and Answers
 
