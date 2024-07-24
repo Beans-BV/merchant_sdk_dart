@@ -1,7 +1,9 @@
 import 'package:example/developer.dart';
 import 'package:example/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'checkout.dart';
 import 'deposit.dart';
 
 void main() {
@@ -10,6 +12,7 @@ void main() {
       title: 'Beans Merchant SDK examples',
       darkTheme: darkTheme,
       home: const DashboardScreen(),
+      debugShowCheckedModeBanner: false,
     ),
   );
 }
@@ -42,7 +45,21 @@ class DashboardPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ElevatedButton(
+          if (kIsWeb) ...[
+            FilledButton.tonal(
+              child: const Text('Checkout'),
+              onPressed: () {
+                final navigator = Navigator.of(context);
+                navigator.push(
+                  MaterialPageRoute(
+                    builder: (context) => const CheckoutScreen(),
+                  ),
+                );
+              },
+            ),
+            spacer,
+          ],
+          FilledButton.tonal(
             child: const Text('Deposit'),
             onPressed: () {
               final navigator = Navigator.of(context);
@@ -54,7 +71,7 @@ class DashboardPage extends StatelessWidget {
             },
           ),
           spacer,
-          ElevatedButton(
+          FilledButton.tonal(
             child: const Text('Advanced (for developers)'),
             onPressed: () {
               final navigator = Navigator.of(context);

@@ -255,7 +255,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
+              FilledButton(
                 onPressed: generateQrCode,
                 child: const Text('Generate QR Code'),
               ),

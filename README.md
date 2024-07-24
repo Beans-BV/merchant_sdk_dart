@@ -20,6 +20,7 @@
       - [Generate SVG QR Code](#generate-svg-qr-code)
   - [Webhook Notifications](#webhook-notifications)
 - [Examples](#examples)
+  - [Checkout](#checkout)
   - [Deposit](#deposit)
   - [Developer](#developer)
 - [Questions and Answers](#questions-and-answers)
@@ -264,6 +265,12 @@ Example Webhook Payload:<br>
 # Examples
 
 We've provided examples to help you understand what you as a business can do with the Beans Merchant SDK.
+
+## Checkout
+
+We've added an example that showcases a simple checkout flow for a fictional e-commerce platform. This shows you how easy it is to generate a payment request for something like a checkout.
+
+Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/checkout.dart).
 
 ## Deposit
 

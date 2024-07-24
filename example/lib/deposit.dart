@@ -28,7 +28,7 @@ class DepositScreen extends StatelessWidget {
       ),
       body: Center(
         child: ConstrainedBox(
-          // max width for web is 600
+          // max width for web is 384
           constraints: const BoxConstraints(
             maxWidth: kIsWeb ? 384 : double.infinity,
           ),
@@ -68,7 +68,7 @@ class DepositPage extends StatefulWidget {
 class _DepositPageState extends State<DepositPage>
     with SingleTickerProviderStateMixin {
   late final BeansMerchantSdk merchantSdk;
-  late final TabController tabBarController;
+  late final TabController tabController;
   late final TextEditingController amountController;
   late final String depositId;
 
@@ -77,7 +77,7 @@ class _DepositPageState extends State<DepositPage>
     merchantSdk = BeansMerchantSdk.production(
       apiKey: Constants.unaSwapApiKey,
     );
-    tabBarController = TabController(
+    tabController = TabController(
       length: 3,
       vsync: this,
     );
@@ -91,17 +91,17 @@ class _DepositPageState extends State<DepositPage>
     return SizedBox(
       width: double.infinity,
       child: TabBarView(
-        controller: tabBarController,
+        controller: tabController,
         children: [
           _DepositSubPage(
             amountController: amountController,
-            goNext: () => tabBarController.animateTo(1),
+            goNext: () => tabController.animateTo(1),
           ),
           _PaymentProviderSubPage(
             merchantSdk: merchantSdk,
             amountController: amountController,
             depositId: depositId,
-            goNext: () => tabBarController.animateTo(2),
+            goNext: () => tabController.animateTo(2),
           ),
           _DepositCompletedSubPage(
             depositId: depositId,
@@ -161,7 +161,7 @@ class _DepositSubPageState extends State<_DepositSubPage> {
         const SizedBox(
           height: 16,
         ),
-        ElevatedButton(
+        FilledButton(
           child: const Text('Continue'),
           onPressed: () async {
             final amount = double.tryParse(
@@ -250,7 +250,7 @@ class _PaymentProviderSubPageState extends State<_PaymentProviderSubPage> {
         AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
           opacity: selectedPaymentProvider != null ? 1 : 0,
-          child: ElevatedButton(
+          child: FilledButton(
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -372,7 +372,6 @@ class _UnaSwapLogo extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: const ShapeDecoration(
-        color: Colors.orange,
         shape: CircleBorder(),
       ),
       child: Image.asset(

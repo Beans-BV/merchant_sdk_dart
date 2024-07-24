@@ -9,9 +9,9 @@ class Constants {
   static const unaSwapStellarAccountId =
       "GB5TLWF2UTZSY7QZ7BT6VK4UPT2KGG2TT33ZIK3JS74WVF7FKPWRQ7WN";
 
-  // Marketplace company
-  static const marketplaceApiKey = "QNOB-013X-0F32-LWJC";
-  static const marketplaceStellarAccountId =
+  // EkoEbooks company
+  static const ekoEbooksApiKey = "QNOB-013X-0F32-LWJC";
+  static const ekoEbooksStellarAccountId =
       "GBYSGYLHPDTMHX33DCITR6DA4CLDDEIPXBZ7ASNVYQPYPKA3ROQUSRHA";
 
   // USDC currency
@@ -21,4 +21,8 @@ class Constants {
   // XLM currency
   static const xlmStellarCurrencyId = 'a14a2642-d650-4e6f-b72a-6ac86303a492';
   static const xlmStellarCurrencyCode = 'XLM';
+
+  // NGNC currency
+  static const ngnStellarCurrencyId = '98231a85-c20b-411f-bce9-746bfe92a368';
+  static const ngnStellarCurrencyCode = 'NGNC';
 }
