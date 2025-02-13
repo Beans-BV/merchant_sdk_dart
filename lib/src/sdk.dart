@@ -18,7 +18,7 @@ class BeansMerchantSdk {
     http.Client? httpClient,
   }) {
     return BeansMerchantSdk.custom(
-      apiBaseUrl: Uri.https('api.beansapp.com', '/v3'),
+      apiBaseUrl: Uri.https('api.beansapp.com', '/v4'),
       apiKey: apiKey,
       httpClient: httpClient,
     );
@@ -29,7 +29,7 @@ class BeansMerchantSdk {
     http.Client? httpClient,
   }) {
     return BeansMerchantSdk.custom(
-      apiBaseUrl: Uri.https('api.staging.beansapp.com', '/v3'),
+      apiBaseUrl: Uri.https('api.staging.beansapp.com', '/v4'),
       apiKey: apiKey,
       httpClient: httpClient,
     );

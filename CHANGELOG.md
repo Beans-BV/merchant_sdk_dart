@@ -1,3 +1,9 @@
+## 4.0.0
+* Beans API v4 support
+* 
+* **BREAKING CHANGES:**
+*  - API version increased from v3 to v4
+
 ## 2.0.0
 * Improved the SDK initialization process
 * 
