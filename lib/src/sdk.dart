@@ -1,10 +1,16 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import 'exceptions/api_exception.dart';
+import 'models/company_account.dart';
+import 'models/create_company_account_response.dart';
 import 'models/fetch_stellar_currencies_response.dart';
+import 'models/language_string.dart';
 import 'models/qr_code_response.dart';
+import 'models/upload_avatar_response.dart';
 
 class BeansMerchantSdk {
   BeansMerchantSdk.custom({
@@ -172,6 +178,112 @@ class BeansMerchantSdk {
       return PngQrCodeResponse.fromJson(json) as T;
     } else {
       throw Exception('Unknown class');
+    }
+  }
+
+  /// Creates a sub-account for the company
+  /// 
+  /// [stellarAccountId] The Stellar account ID for the sub-account
+  /// [name] The name of the sub-account in different languages as a map where
+  /// the key is the language code (e.g., 'en', 'vi') and the value is the name in that language
+  Future<CreateCompanyAccountResponse> createCompanyAccount(
+    String stellarAccountId,
+    Map<String, String> name,
+  ) async {
+    final response = await httpClient.post(
+      Uri.parse('$apiBaseUrl/companies/me/account'),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Beans-Company-Api-Key': apiKey,
+      },
+      body: jsonEncode({
+        'stellarAccountId': stellarAccountId,
+        'name': name,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return CreateCompanyAccountResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to create company account',
+      );
+    }
+  }
+
+  /// Uploads an avatar for a company sub-account
+  /// 
+  /// [companyId] The ID of the company or 'me' for the current company
+  /// [stellarAccountId] The Stellar account ID of the sub-account
+  /// [imageBytes] The image data as bytes
+  /// [mimeType] The MIME type of the image (e.g., 'image/jpeg', 'image/png')
+  Future<CompanyAccount> uploadCompanyAccountAvatar(
+    String companyId,
+    String stellarAccountId,
+    Uint8List imageBytes,
+    String mimeType,
+  ) async {
+    final uri = Uri.parse(
+      '$apiBaseUrl/companies/$companyId/accounts/$stellarAccountId/avatar',
+    );
+
+    final request = http.MultipartRequest('PUT', uri);
+    request.headers['X-Beans-Company-Api-Key'] = apiKey;
+
+    final extension = mimeType.split('/').last;
+    
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'image',
+        imageBytes,
+        filename: 'avatar.$extension',
+        contentType: MediaType.parse(mimeType),
+      ),
+    );
+
+    final streamedResponse = await httpClient.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      return CompanyAccount.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to upload company account avatar',
+      );
+    }
+  }
+
+  /// Gets the avatar for a company sub-account
+  /// 
+  /// [companyId] The ID of the company or 'me' for the current company
+  /// [accountId] The ID of the sub-account
+  /// [avatarId] The ID of the avatar
+  Future<Uint8List> getCompanyAccountAvatar(
+    String companyId,
+    String accountId,
+    String avatarId,
+  ) async {
+    final response = await httpClient.get(
+      Uri.parse(
+        '$apiBaseUrl/companies/$companyId/accounts/$accountId/avatar/$avatarId',
+      ),
+      headers: {
+        'X-Beans-Company-Api-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to get company account avatar',
+      );
     }
   }
 }
