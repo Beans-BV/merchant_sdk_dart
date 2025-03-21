@@ -24,6 +24,8 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
   CompanyAccount? _createdAccount;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _isDeleting = false;
+  String? _deleteStatus;
 
   @override
   void dispose() {
@@ -152,6 +154,38 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     }
   }
 
+  Future<void> _deleteSubAccount() async {
+    if (_createdAccount == null) {
+      setState(() {
+        _errorMessage = 'No account to delete';
+      });
+      return;
+    }
+
+    setState(() {
+      _isDeleting = true;
+      _errorMessage = null;
+      _deleteStatus = null;
+    });
+
+    try {
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.companyApiKey);
+      final response = await sdk.deleteCompanyAccount(
+        _createdAccount!.stellarAccountId,
+      );
+
+      setState(() {
+        _deleteStatus = 'Sub-account deleted successfully. Status: ${response.status}';
+        _isDeleting = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error when deleting sub-account: $e';
+        _isDeleting = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -241,11 +275,45 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
               const SizedBox(height: 32),
               const Divider(),
               const SizedBox(height: 16),
-              const Text(
-                'Information of created sub-account',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Information of created sub-account',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _isDeleting ? null : _deleteSubAccount,
+                    icon: _isDeleting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.delete, color: Colors.red),
+                    label: const Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red.shade700,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
+              if (_deleteStatus != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.green.withOpacity(0.1),
+                  child: Text(
+                    _deleteStatus!,
+                    style: TextStyle(color: Colors.green.shade800),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               _buildInfoRow('ID:', _createdAccount!.id),
               _buildInfoRow('Company ID:', _createdAccount!.companyId),
               _buildInfoRow('Stellar Account ID:', _createdAccount!.stellarAccountId),

@@ -19,6 +19,7 @@
       - [Generate PNG QR Code](#generate-png-qr-code)
       - [Generate SVG QR Code](#generate-svg-qr-code)
       - [Create Company Account](#create-company-account)
+      - [Delete Company Account](#delete-company-account)
       - [Upload Company Account Avatar](#upload-company-account-avatar)
       - [Get Company Account Avatar](#get-company-account-avatar)
   - [Webhook Notifications](#webhook-notifications)
@@ -135,6 +136,11 @@ final avatarBytes = await sdk.getCompanyAccountAvatar(
   avatarId
 );
 // Use avatarBytes to display the image
+
+// Xóa sub-account
+final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
+log('Deleted account with ID: ${response.account.id}');
+log('Deletion status: ${response.status}');
 ```
 
 # API Reference
@@ -291,7 +297,7 @@ Method Signature:<br>
 
 Parameters:<br>
   - `stellarAccountId`: *The Stellar account ID for the sub-account.*
-  - `name`: *The name of the sub-account in different languages as a Map<String, String> object.*
+  - `name`: *The name of the sub-account in different languages as a LanguageString object.*
 
 Returns:<br>
 `Future<CreateCompanyAccountResponse>`: *A future that resolves with the response object containing the created company account.*
@@ -299,18 +305,40 @@ Returns:<br>
 Return Object Properties:<br>
   - `account`: *The CompanyAccount object representing the created sub-account.*
 
+#### Delete Company Account
+
+*Deletes a sub-account for the company.*
+
+Method Signature:<br>
+*`Future<DeleteCompanyAccountResponse> deleteCompanyAccount(...)`*
+
+Parameters:<br>
+  - `stellarAccountId`: *The Stellar account ID of the sub-account to delete.*
+
+Returns:<br>
+`Future<DeleteCompanyAccountResponse>`: *A future that resolves with the response object containing information about the deleted sub-account.*
+
+Return Object Properties:<br>
+  - `account`: *The CompanyAccount object representing the deleted sub-account.*
+  - `status`: *The status of the deletion operation, typically "deleted".*
+
 Example:<br>
 ```dart
-final name = {
-  'en': "Marketing Account",
-  'vi': "Tài khoản Marketing"
-};
+final name = LanguageString(
+  en: "Marketing Account",
+  vi: "Tài khoản Marketing"
+);
 final response = await sdk.createCompanyAccount(
   "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
   name
 );
 log('Created company account: ${response.account.id}');
+
+final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
+log('Deleted account with ID: ${response.account.id}');
+log('Deletion status: ${response.status}');
 ```
+
 
 #### Upload Company Account Avatar
 
@@ -400,6 +428,7 @@ We've added an example that demonstrates how to create and manage company sub-ac
 - Create a new sub-account with multi-language support
 - Upload an avatar for the sub-account
 - Retrieve and display the avatar
+- Delete a sub-account when it's no longer needed
 
 This functionality is particularly useful for businesses that need to manage multiple Stellar accounts under a single company account.
 

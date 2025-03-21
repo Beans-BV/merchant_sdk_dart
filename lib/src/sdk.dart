@@ -7,6 +7,7 @@ import 'package:http_parser/http_parser.dart';
 import 'exceptions/api_exception.dart';
 import 'models/company_account.dart';
 import 'models/create_company_account_response.dart';
+import 'models/delete_company_account_response.dart';
 import 'models/fetch_stellar_currencies_response.dart';
 import 'models/language_string.dart';
 import 'models/qr_code_response.dart';
@@ -283,6 +284,31 @@ class BeansMerchantSdk {
         response.statusCode,
         response,
         'Failed to get company account avatar',
+      );
+    }
+  }
+
+  /// Deletes a sub-account for the company
+  /// 
+  /// [stellarAccountId] The Stellar account ID of the sub-account to delete
+  Future<DeleteCompanyAccountResponse> deleteCompanyAccount(
+    String stellarAccountId,
+  ) async {
+    final response = await httpClient.delete(
+      Uri.parse('$apiBaseUrl/companies/me/sub-accounts/$stellarAccountId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Beans-Company-Api-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return DeleteCompanyAccountResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to delete company account',
       );
     }
   }
