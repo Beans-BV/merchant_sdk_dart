@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:beans_merchant_sdk/beans_merchant_sdk.dart';
@@ -26,6 +25,14 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
   bool _isLoading = false;
   bool _isDeleting = false;
   String? _deleteStatus;
+  List<CompanyAccount> _subaccounts = [];
+  bool _isLoadingSubaccounts = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSubaccounts();
+  }
 
   @override
   void dispose() {
@@ -33,6 +40,27 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     _nameEnController.dispose();
     _nameViController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSubaccounts() async {
+    setState(() {
+      _isLoadingSubaccounts = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
+      final accounts = await sdk.getMerchantAccounts();
+      setState(() {
+        _subaccounts = accounts;
+        _isLoadingSubaccounts = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading subaccounts: $e';
+        _isLoadingSubaccounts = false;
+      });
+    }
   }
 
   Future<void> _pickImage() async {
@@ -64,39 +92,43 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     final stellarAccountId = _stellarAccountIdController.text.trim();
     final nameEn = _nameEnController.text.trim();
     final nameVi = _nameViController.text.trim();
-    
+
     if (stellarAccountId.isEmpty || nameEn.isEmpty) {
       setState(() {
         _errorMessage = 'Please fill in Stellar Account ID and English name';
       });
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
-      final sdk = BeansMerchantSdk.staging(apiKey: Constants.companyApiKey);
-      
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
+
       final Map<String, String> name = {
         'en': nameEn,
       };
-      
+
       if (nameVi.isNotEmpty) {
         name['vi'] = nameVi;
       }
-      
+
       final response = await sdk.createCompanyAccount(
         stellarAccountId,
         name,
       );
-      
+
       setState(() {
         _createdAccount = response.account;
         _isLoading = false;
       });
+
+      // Refresh subaccounts list
+      await _loadSubaccounts();
+
       // Upload avatar if an image is selected
       if (_selectedImageBytes != null && _selectedImageMimeType != null) {
         _uploadAvatar();
@@ -108,8 +140,11 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       });
     }
   }
+
   Future<void> _uploadAvatar() async {
-    if (_createdAccount == null || _selectedImageBytes == null || _selectedImageMimeType == null) {
+    if (_createdAccount == null ||
+        _selectedImageBytes == null ||
+        _selectedImageMimeType == null) {
       return;
     }
     setState(() {
@@ -117,7 +152,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       _errorMessage = null;
     });
     try {
-      final sdk = BeansMerchantSdk.staging(apiKey: Constants.companyApiKey);
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
       final updatedAccount = await sdk.uploadCompanyAccountAvatar(
         'me',
         _createdAccount!.stellarAccountId,
@@ -135,12 +170,13 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       });
     }
   }
+
   Future<Uint8List?> _getAvatar() async {
     if (_createdAccount?.avatarId == null) {
       return null;
     }
     try {
-      final sdk = BeansMerchantSdk.staging(apiKey: Constants.companyApiKey);
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
       return await sdk.getCompanyAccountAvatar(
         'me',
         _createdAccount!.id,
@@ -169,15 +205,19 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     });
 
     try {
-      final sdk = BeansMerchantSdk.staging(apiKey: Constants.companyApiKey);
+      final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
       final response = await sdk.deleteCompanyAccount(
         _createdAccount!.stellarAccountId,
       );
 
       setState(() {
-        _deleteStatus = 'Sub-account deleted successfully. Status: ${response.status}';
+        _deleteStatus =
+            'Sub-account deleted successfully. Status: ${response.status}';
         _isDeleting = false;
       });
+
+      // Refresh subaccounts list
+      await _loadSubaccounts();
     } catch (e) {
       setState(() {
         _errorMessage = 'Error when deleting sub-account: $e';
@@ -197,12 +237,97 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Subaccounts List Section
+            const Text(
+              'Existing Sub-accounts',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            if (_isLoadingSubaccounts)
+              const Center(child: CircularProgressIndicator())
+            else if (_subaccounts.isEmpty)
+              const Text('No sub-accounts found')
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _subaccounts.length,
+                itemBuilder: (context, index) {
+                  final account = _subaccounts[index];
+                  return Card(
+                    child: ListTile(
+                      leading: account.avatarId != null
+                          ? FutureBuilder<Uint8List?>(
+                              future: BeansMerchantSdk.staging(
+                                      apiKey: Constants.beansApiKey)
+                                  .getCompanyAccountAvatar(
+                                'me',
+                                account.id,
+                                account.avatarId!,
+                              ),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  return CircleAvatar(
+                                    backgroundImage:
+                                        MemoryImage(snapshot.data!),
+                                  );
+                                }
+                                return const CircleAvatar(
+                                  child: Icon(Icons.account_circle),
+                                );
+                              },
+                            )
+                          : const CircleAvatar(
+                              child: Icon(Icons.account_circle),
+                            ),
+                      title: Text(account.name['en'] ?? 'Unnamed Account'),
+                      subtitle: Text(account.stellarAccountId),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          if (await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Delete Sub-account'),
+                                  content: const Text(
+                                    'Are you sure you want to delete this sub-account? This action cannot be undone.',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              ) ??
+                              false) {
+                            setState(() {
+                              _createdAccount = account;
+                            });
+                            await _deleteSubAccount();
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+
+            // Create New Sub-account Section
             const Text(
               'Create new sub-account',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            // Form to create sub-account
             TextField(
               controller: _stellarAccountIdController,
               decoration: const InputDecoration(
@@ -227,7 +352,6 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Avatar selection part
             Row(
               children: [
                 ElevatedButton.icon(
@@ -249,7 +373,6 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
               ],
             ),
             const SizedBox(height: 24),
-              // Create sub-account button
             SizedBox(
               width: double.infinity,
               child: FilledButton(
@@ -270,7 +393,6 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
                 ),
               ),
             ],
-            // Display information of created sub-account
             if (_createdAccount != null) ...[
               const SizedBox(height: 32),
               const Divider(),
@@ -316,9 +438,10 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
               ],
               _buildInfoRow('ID:', _createdAccount!.id),
               _buildInfoRow('Company ID:', _createdAccount!.companyId),
-              _buildInfoRow('Stellar Account ID:', _createdAccount!.stellarAccountId),
-              _buildInfoRow('Name (EN):', _createdAccount!.name.en ?? 'N/A'),
-              _buildInfoRow('Name (VI):', _createdAccount!.name.vi ?? 'N/A'),
+              _buildInfoRow(
+                  'Stellar Account ID:', _createdAccount!.stellarAccountId),
+              _buildInfoRow('Name (EN):', _createdAccount!.name['en'] ?? 'N/A'),
+              _buildInfoRow('Name (VI):', _createdAccount!.name['vi'] ?? 'N/A'),
               if (_createdAccount!.avatarId != null) ...[
                 const SizedBox(height: 16),
                 const Text('Avatar:'),
@@ -350,6 +473,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       ),
     );
   }
+
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -370,4 +494,4 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       ),
     );
   }
-} 
+}

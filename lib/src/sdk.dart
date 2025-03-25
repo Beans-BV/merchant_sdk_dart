@@ -9,9 +9,7 @@ import 'models/company_account.dart';
 import 'models/create_company_account_response.dart';
 import 'models/delete_company_account_response.dart';
 import 'models/fetch_stellar_currencies_response.dart';
-import 'models/language_string.dart';
 import 'models/qr_code_response.dart';
-import 'models/upload_avatar_response.dart';
 
 class BeansMerchantSdk {
   BeansMerchantSdk.custom({
@@ -183,7 +181,7 @@ class BeansMerchantSdk {
   }
 
   /// Creates a sub-account for the company
-  /// 
+  ///
   /// [stellarAccountId] The Stellar account ID for the sub-account
   /// [name] The name of the sub-account in different languages as a map where
   /// the key is the language code (e.g., 'en', 'vi') and the value is the name in that language
@@ -215,7 +213,7 @@ class BeansMerchantSdk {
   }
 
   /// Uploads an avatar for a company sub-account
-  /// 
+  ///
   /// [companyId] The ID of the company or 'me' for the current company
   /// [stellarAccountId] The Stellar account ID of the sub-account
   /// [imageBytes] The image data as bytes
@@ -234,7 +232,7 @@ class BeansMerchantSdk {
     request.headers['X-Beans-Company-Api-Key'] = apiKey;
 
     final extension = mimeType.split('/').last;
-    
+
     request.files.add(
       http.MultipartFile.fromBytes(
         'image',
@@ -259,7 +257,7 @@ class BeansMerchantSdk {
   }
 
   /// Gets the avatar for a company sub-account
-  /// 
+  ///
   /// [companyId] The ID of the company or 'me' for the current company
   /// [accountId] The ID of the sub-account
   /// [avatarId] The ID of the avatar
@@ -289,7 +287,7 @@ class BeansMerchantSdk {
   }
 
   /// Deletes a sub-account for the company
-  /// 
+  ///
   /// [stellarAccountId] The Stellar account ID of the sub-account to delete
   Future<DeleteCompanyAccountResponse> deleteCompanyAccount(
     String stellarAccountId,
@@ -309,6 +307,49 @@ class BeansMerchantSdk {
         response.statusCode,
         response,
         'Failed to delete company account',
+      );
+    }
+  }
+
+  /// Fetches all merchant accounts
+  Future<List<CompanyAccount>> getMerchantAccounts() async {
+    final response = await httpClient.get(
+      Uri.parse('$apiBaseUrl/companies/me/accounts'),
+      headers: {
+        'X-Beans-Company-Api-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Parse the response body and get the accounts array
+      final Map<String, dynamic> jsonMap = jsonDecode(response.body);
+      final List<dynamic> jsonList = jsonMap['accounts'];
+      return jsonList.map((json) => CompanyAccount.fromJson(json)).toList();
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to fetch merchant accounts',
+      );
+    }
+  }
+
+  /// Fetches a specific merchant account by Stellar account ID
+  Future<CompanyAccount> getMerchantAccount(String stellarAccountId) async {
+    final response = await httpClient.get(
+      Uri.parse('$apiBaseUrl/companies/me/accounts/$stellarAccountId'),
+      headers: {
+        'X-Beans-Company-Api-Key': apiKey,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return CompanyAccount.fromJson(jsonDecode(response.body));
+    } else {
+      throw ApiException(
+        response.statusCode,
+        response,
+        'Failed to fetch merchant account',
       );
     }
   }
