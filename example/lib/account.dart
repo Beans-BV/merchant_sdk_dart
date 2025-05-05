@@ -6,18 +6,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class SubAccountScreen extends StatefulWidget {
-  const SubAccountScreen({super.key});
+class AccountScreen extends StatefulWidget {
+  const AccountScreen({super.key});
 
   @override
-  State<SubAccountScreen> createState() => _SubAccountScreenState();
+  State<AccountScreen> createState() => _AccountScreenState();
 }
 
-class _SubAccountScreenState extends State<SubAccountScreen> {
+class _AccountScreenState extends State<AccountScreen> {
   final TextEditingController _stellarAccountIdController =
       TextEditingController();
   final TextEditingController _nameEnController = TextEditingController();
-  final TextEditingController _nameViController = TextEditingController();
+  final TextEditingController _nameVnController = TextEditingController();
   Uint8List? _selectedImageBytes;
   String? _selectedImageMimeType;
   CompanyAccount? _createdAccount;
@@ -25,40 +25,40 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
   bool _isLoading = false;
   bool _isDeleting = false;
   String? _deleteStatus;
-  List<CompanyAccount> _subaccounts = [];
-  bool _isLoadingSubaccounts = false;
+  List<CompanyAccount> _accounts = [];
+  bool _isLoadingAccounts = false;
 
   @override
   void initState() {
     super.initState();
-    _loadSubaccounts();
+    _loadAccounts();
   }
 
   @override
   void dispose() {
     _stellarAccountIdController.dispose();
     _nameEnController.dispose();
-    _nameViController.dispose();
+    _nameVnController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadSubaccounts() async {
+  Future<void> _loadAccounts() async {
     setState(() {
-      _isLoadingSubaccounts = true;
+      _isLoadingAccounts = true;
       _errorMessage = null;
     });
 
     try {
       final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
-      final accounts = await sdk.getMerchantAccounts();
+      final accounts = await sdk.getCompanyAccounts();
       setState(() {
-        _subaccounts = accounts;
-        _isLoadingSubaccounts = false;
+        _accounts = accounts;
+        _isLoadingAccounts = false;
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error loading subaccounts: $e';
-        _isLoadingSubaccounts = false;
+        _errorMessage = 'Error loading accounts: $e';
+        _isLoadingAccounts = false;
       });
     }
   }
@@ -88,10 +88,10 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     }
   }
 
-  Future<void> _createSubAccount() async {
+  Future<void> _createAccount() async {
     final stellarAccountId = _stellarAccountIdController.text.trim();
     final nameEn = _nameEnController.text.trim();
-    final nameVi = _nameViController.text.trim();
+    final nameVn = _nameVnController.text.trim();
 
     if (stellarAccountId.isEmpty || nameEn.isEmpty) {
       setState(() {
@@ -112,8 +112,8 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
         'en': nameEn,
       };
 
-      if (nameVi.isNotEmpty) {
-        name['vi'] = nameVi;
+      if (nameVn.isNotEmpty) {
+        name['vn'] = nameVn;
       }
 
       final response = await sdk.createCompanyAccount(
@@ -126,8 +126,8 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
         _isLoading = false;
       });
 
-      // Refresh subaccounts list
-      await _loadSubaccounts();
+      // Refresh accounts list
+      await _loadAccounts();
 
       // Upload avatar if an image is selected
       if (_selectedImageBytes != null && _selectedImageMimeType != null) {
@@ -135,7 +135,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error when creating sub-account: $e';
+        _errorMessage = 'Error when creating account: $e';
         _isLoading = false;
       });
     }
@@ -190,7 +190,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
     }
   }
 
-  Future<void> _deleteSubAccount() async {
+  Future<void> _deleteAccount() async {
     if (_createdAccount == null) {
       setState(() {
         _errorMessage = 'No account to delete';
@@ -212,15 +212,15 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
 
       setState(() {
         _deleteStatus =
-            'Sub-account deleted successfully. Status: ${response.status}';
+            'account deleted successfully. Status: ${response.status}';
         _isDeleting = false;
       });
 
-      // Refresh subaccounts list
-      await _loadSubaccounts();
+      // Refresh accounts list
+      await _loadAccounts();
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error when deleting sub-account: $e';
+        _errorMessage = 'Error when deleting account: $e';
         _isDeleting = false;
       });
     }
@@ -230,30 +230,30 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sub-account management'),
+        title: const Text('account management'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Subaccounts List Section
+            // Accounts List Section
             const Text(
-              'Existing Sub-accounts',
+              'Existing accounts',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            if (_isLoadingSubaccounts)
+            if (_isLoadingAccounts)
               const Center(child: CircularProgressIndicator())
-            else if (_subaccounts.isEmpty)
-              const Text('No sub-accounts found')
+            else if (_accounts.isEmpty)
+              const Text('No accounts found')
             else
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _subaccounts.length,
+                itemCount: _accounts.length,
                 itemBuilder: (context, index) {
-                  final account = _subaccounts[index];
+                  final account = _accounts[index];
                   return Card(
                     child: ListTile(
                       leading: account.avatarId != null
@@ -288,9 +288,9 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
                           if (await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: const Text('Delete Sub-account'),
+                                  title: const Text('Delete account'),
                                   content: const Text(
-                                    'Are you sure you want to delete this sub-account? This action cannot be undone.',
+                                    'Are you sure you want to delete this account? This action cannot be undone.',
                                   ),
                                   actions: [
                                     TextButton(
@@ -310,7 +310,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
                             setState(() {
                               _createdAccount = account;
                             });
-                            await _deleteSubAccount();
+                            await _deleteAccount();
                           }
                         },
                       ),
@@ -322,9 +322,9 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
             const Divider(),
             const SizedBox(height: 16),
 
-            // Create New Sub-account Section
+            // Create New account Section
             const Text(
-              'Create new sub-account',
+              'Create new account',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -345,7 +345,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: _nameViController,
+              controller: _nameVnController,
               decoration: const InputDecoration(
                 labelText: 'Name (Vietnamese - Optional)',
                 border: OutlineInputBorder(),
@@ -376,10 +376,10 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: _isLoading ? null : _createSubAccount,
+                onPressed: _isLoading ? null : _createAccount,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Create sub-account'),
+                    : const Text('Create an account'),
               ),
             ),
             if (_errorMessage != null) ...[
@@ -401,11 +401,11 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Information of created sub-account',
+                    'Information of created an account',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   ElevatedButton.icon(
-                    onPressed: _isDeleting ? null : _deleteSubAccount,
+                    onPressed: _isDeleting ? null : _deleteAccount,
                     icon: _isDeleting
                         ? const SizedBox(
                             width: 16,
@@ -441,7 +441,7 @@ class _SubAccountScreenState extends State<SubAccountScreen> {
               _buildInfoRow(
                   'Stellar Account ID:', _createdAccount!.stellarAccountId),
               _buildInfoRow('Name (EN):', _createdAccount!.name['en'] ?? 'N/A'),
-              _buildInfoRow('Name (VI):', _createdAccount!.name['vi'] ?? 'N/A'),
+              _buildInfoRow('Name (VN):', _createdAccount!.name['vn'] ?? 'N/A'),
               if (_createdAccount!.avatarId != null) ...[
                 const SizedBox(height: 16),
                 const Text('Avatar:'),

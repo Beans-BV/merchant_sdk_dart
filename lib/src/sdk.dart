@@ -180,11 +180,11 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Creates a sub-account for the company
+  /// Creates an account for the company
   ///
-  /// [stellarAccountId] The Stellar account ID for the sub-account
-  /// [name] The name of the sub-account in different languages as a map where
-  /// the key is the language code (e.g., 'en', 'vi') and the value is the name in that language
+  /// [stellarAccountId] The Stellar account ID for the account
+  /// [name] The name of the account in different languages as a map where
+  /// the key is the language code (e.g., 'en', 'vn') and the value is the name in that language
   Future<CreateCompanyAccountResponse> createCompanyAccount(
     String stellarAccountId,
     Map<String, String> name,
@@ -212,18 +212,19 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Uploads an avatar for a company sub-account
+  /// Uploads an avatar for a company account
   ///
+  /// Can accept either a file path or raw image bytes
   /// [companyId] The ID of the company or 'me' for the current company
-  /// [stellarAccountId] The Stellar account ID of the sub-account
-  /// [imageBytes] The image data as bytes
-  /// [mimeType] The MIME type of the image (e.g., 'image/jpeg', 'image/png')
+  /// [stellarAccountId] The Stellar account ID of the account
+  /// [imagePathOrBytes] Either a String file path or Uint8List of image bytes
+  /// [mimeType] Optional MIME type of the image. Required if using imageBytes
   Future<CompanyAccount> uploadCompanyAccountAvatar(
     String companyId,
     String stellarAccountId,
-    Uint8List imageBytes,
-    String mimeType,
-  ) async {
+    dynamic imagePathOrBytes, [
+    String? mimeType,
+  ]) async {
     final uri = Uri.parse(
       '$apiBaseUrl/companies/$companyId/accounts/$stellarAccountId/avatar',
     );
@@ -231,16 +232,37 @@ class BeansMerchantSdk {
     final request = http.MultipartRequest('PUT', uri);
     request.headers['X-Beans-Company-Api-Key'] = apiKey;
 
-    final extension = mimeType.split('/').last;
+    if (imagePathOrBytes is String) {
+      // Handle file path
+      final extension = imagePathOrBytes.split('.').last.toLowerCase();
+      final detectedMimeType = _getMimeTypeFromExtension(extension);
 
-    request.files.add(
-      http.MultipartFile.fromBytes(
-        'image',
-        imageBytes,
-        filename: 'avatar.$extension',
-        contentType: MediaType.parse(mimeType),
-      ),
-    );
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          imagePathOrBytes,
+          contentType: MediaType.parse(detectedMimeType),
+        ),
+      );
+    } else if (imagePathOrBytes is Uint8List) {
+      // Handle raw bytes
+      if (mimeType == null) {
+        throw ArgumentError('mimeType is required when using raw bytes');
+      }
+      final extension = mimeType.split('/').last;
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          imagePathOrBytes,
+          filename: 'avatar.$extension',
+          contentType: MediaType.parse(mimeType),
+        ),
+      );
+    } else {
+      throw ArgumentError(
+          'imagePathOrBytes must be either a String path or Uint8List bytes');
+    }
 
     final streamedResponse = await httpClient.send(request);
     final response = await http.Response.fromStream(streamedResponse);
@@ -256,10 +278,24 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Gets the avatar for a company sub-account
+  String _getMimeTypeFromExtension(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      default:
+        throw ArgumentError('Unsupported file extension: $extension');
+    }
+  }
+
+  /// Gets the avatar for a company account
   ///
   /// [companyId] The ID of the company or 'me' for the current company
-  /// [accountId] The ID of the sub-account
+  /// [accountId] The ID of the account
   /// [avatarId] The ID of the avatar
   Future<Uint8List> getCompanyAccountAvatar(
     String companyId,
@@ -286,14 +322,14 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Deletes a sub-account for the company
+  /// Deletes an account for the company
   ///
-  /// [stellarAccountId] The Stellar account ID of the sub-account to delete
+  /// [stellarAccountId] The Stellar account ID of the account to delete
   Future<DeleteCompanyAccountResponse> deleteCompanyAccount(
     String stellarAccountId,
   ) async {
     final response = await httpClient.delete(
-      Uri.parse('$apiBaseUrl/companies/me/sub-accounts/$stellarAccountId'),
+      Uri.parse('$apiBaseUrl/companies/me/accounts/$stellarAccountId'),
       headers: {
         'Content-Type': 'application/json',
         'X-Beans-Company-Api-Key': apiKey,
@@ -312,7 +348,7 @@ class BeansMerchantSdk {
   }
 
   /// Fetches all merchant accounts
-  Future<List<CompanyAccount>> getMerchantAccounts() async {
+  Future<List<CompanyAccount>> getCompanyAccounts() async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts'),
       headers: {

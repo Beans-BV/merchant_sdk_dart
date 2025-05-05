@@ -26,7 +26,7 @@
 - [Examples](#examples)
   - [Checkout](#checkout)
   - [Deposit](#deposit)
-  - [Sub-account Management](#sub-account-management)
+  - [Account Management](#account-management)
   - [Developer](#developer)
 - [Questions and Answers](#questions-and-answers)
   - [Do I have to use stroops?](#do-i-have-to-use-stroops)
@@ -108,10 +108,10 @@ final response = await merchant.generatePngQRCode('stellarAccountId', 'stellarCu
 log('Generated deeplink: ${response.deeplink}');
 log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
 
-// Create a company sub-account
+// Create a company account
 final name = {
   'en': "Marketing Account",
-  'vi': "Tài khoản Marketing"
+  'vn': "Tài khoản Marketing"
 };
 final accountResponse = await sdk.createCompanyAccount(
   "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
@@ -119,7 +119,7 @@ final accountResponse = await sdk.createCompanyAccount(
 );
 log('Created company account: ${accountResponse.account.id}');
 
-// Upload avatar for a company sub-account
+// Upload avatar for a company account
 final imageBytes = await File('path_to_image.jpg').readAsBytes();
 final updatedAccount = await sdk.uploadCompanyAccountAvatar(
   "me",
@@ -129,7 +129,7 @@ final updatedAccount = await sdk.uploadCompanyAccountAvatar(
 );
 log('Account updated with avatar: ${updatedAccount.avatarId}');
 
-// Get avatar for a company sub-account
+// Get avatar for a company account
 final avatarBytes = await sdk.getCompanyAccountAvatar(
   "me",
   accountId,
@@ -137,7 +137,7 @@ final avatarBytes = await sdk.getCompanyAccountAvatar(
 );
 // Use avatarBytes to display the image
 
-// Xóa sub-account
+// Delete account
 final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
 log('Deleted account with ID: ${response.account.id}');
 log('Deletion status: ${response.status}');
@@ -290,36 +290,36 @@ log('Generated SVG QR code: ${response.svgQrCode}');
 
 #### Create Company Account
 
-*Creates a sub-account for the company.*
+*Creates an account for the company.*
 
 Method Signature:<br>
 *`Future<CreateCompanyAccountResponse> createCompanyAccount(...)`*
 
 Parameters:<br>
-  - `stellarAccountId`: *The Stellar account ID for the sub-account.*
-  - `name`: *The name of the sub-account in different languages as a LanguageString object.*
+  - `stellarAccountId`: *The Stellar account ID for the account.*
+  - `name`: *The name of the account in different languages as a LanguageString object.*
 
 Returns:<br>
 `Future<CreateCompanyAccountResponse>`: *A future that resolves with the response object containing the created company account.*
 
 Return Object Properties:<br>
-  - `account`: *The CompanyAccount object representing the created sub-account.*
+  - `account`: *The CompanyAccount object representing the created account.*
 
 #### Delete Company Account
 
-*Deletes a sub-account for the company.*
+*Deletes an account for the company.*
 
 Method Signature:<br>
 *`Future<DeleteCompanyAccountResponse> deleteCompanyAccount(...)`*
 
 Parameters:<br>
-  - `stellarAccountId`: *The Stellar account ID of the sub-account to delete.*
+  - `stellarAccountId`: *The Stellar account ID of the account to delete.*
 
 Returns:<br>
-`Future<DeleteCompanyAccountResponse>`: *A future that resolves with the response object containing information about the deleted sub-account.*
+`Future<DeleteCompanyAccountResponse>`: *A future that resolves with the response object containing information about the deleted account.*
 
 Return Object Properties:<br>
-  - `account`: *The CompanyAccount object representing the deleted sub-account.*
+  - `account`: *The CompanyAccount object representing the deleted account.*
   - `status`: *The status of the deletion operation, typically "deleted".*
 
 Example:<br>
@@ -342,14 +342,14 @@ log('Deletion status: ${response.status}');
 
 #### Upload Company Account Avatar
 
-*Uploads an avatar for a company sub-account.*
+*Uploads an avatar for a company account.*
 
 Method Signature:<br>
 *`Future<CompanyAccount> uploadCompanyAccountAvatar(...)`*
 
 Parameters:<br>
   - `companyId`: *The ID of the company or 'me' for the current company.*
-  - `stellarAccountId`: *The Stellar account ID of the sub-account.*
+  - `stellarAccountId`: *The Stellar account ID of the account.*
   - `imageBytes`: *The image data as Uint8List (bytes).*
   - `mimeType`: *The MIME type of the image (e.g., 'image/jpeg', 'image/png').*
 
@@ -370,14 +370,14 @@ log('Account updated with avatar: ${updatedAccount.avatarId}');
 
 #### Get Company Account Avatar
 
-*Gets the avatar for a company sub-account.*
+*Gets the avatar for a company account.*
 
 Method Signature:<br>
 *`Future<Uint8List> getCompanyAccountAvatar(...)`*
 
 Parameters:<br>
   - `companyId`: *The ID of the company or 'me' for the current company.*
-  - `accountId`: *The ID of the sub-account.*
+  - `accountId`: *The ID of the account.*
   - `avatarId`: *The ID of the avatar.*
 
 Returns:<br>
@@ -422,17 +422,17 @@ We've added an example that showcases a simple deposit flow for a fictional dece
 
 Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/deposit.dart).
 
-## Sub-account Management
+## Account Management
 
-We've added an example that demonstrates how to create and manage company sub-accounts. This example shows how to:
-- Create a new sub-account with multi-language support
-- Upload an avatar for the sub-account
+We've added an example that demonstrates how to create and manage company accounts. This example shows how to:
+- Create a new account with multi-language support
+- Upload an avatar for the account
 - Retrieve and display the avatar
-- Delete a sub-account when it's no longer needed
+- Delete an account when it's no longer needed
 
 This functionality is particularly useful for businesses that need to manage multiple Stellar accounts under a single company account.
 
-Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/subaccount.dart).
+Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/account.dart).
 
 ## Developer
 

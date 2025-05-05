@@ -1,5 +1,5 @@
+import 'package:example/account.dart';
 import 'package:example/developer.dart';
-import 'package:example/subaccount.dart';
 import 'package:example/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -73,12 +73,12 @@ class DashboardPage extends StatelessWidget {
           ),
           spacer,
           FilledButton.tonal(
-            child: const Text('Sub-account management'),
+            child: const Text('Account management'),
             onPressed: () {
               final navigator = Navigator.of(context);
               navigator.push(
                 MaterialPageRoute(
-                  builder: (context) => const SubAccountScreen(),
+                  builder: (context) => const AccountScreen(),
                 ),
               );
             },

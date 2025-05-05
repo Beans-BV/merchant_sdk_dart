@@ -1,10 +1,10 @@
 import 'company_account.dart';
 
-/// Response object returned when deleting a company sub-account
+/// Response object returned when deleting a company account
 class DeleteCompanyAccountResponse {
   /// The deleted account
   final CompanyAccount account;
-  
+
   /// The status of the deletion operation
   final String status;
 
@@ -24,4 +24,4 @@ class DeleteCompanyAccountResponse {
         'account': account.toJson(),
         'status': status,
       };
-} 
+}
