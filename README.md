@@ -348,7 +348,7 @@ Method Signature:<br>
 *`Future<CompanyAccount> uploadCompanyAccountAvatar(...)`*
 
 Parameters:<br>
-  - `companyId`: *The ID of the company or 'me' for the current company.*
+  - `companyId`: *The ID of the company, or the string "me" to automatically resolve the ID from the provided API token.*
   - `stellarAccountId`: *The Stellar account ID of the account.*
   - `imageBytes`: *The image data as Uint8List (bytes).*
   - `mimeType`: *The MIME type of the image (e.g., 'image/jpeg', 'image/png').*
