@@ -376,7 +376,7 @@ Method Signature:<br>
 *`Future<Uint8List> getCompanyAccountAvatar(...)`*
 
 Parameters:<br>
-  - `companyId`: *The ID of the company or 'me' for the current company.*
+  - `companyId`: *The ID of the company, or the string "me" to automatically resolve the ID from the provided API token.*
   - `accountId`: *The ID of the account.*
   - `avatarId`: *The ID of the avatar.*
 
