@@ -1,3 +1,4 @@
+import 'package:example/account.dart';
 import 'package:example/developer.dart';
 import 'package:example/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -66,6 +67,18 @@ class DashboardPage extends StatelessWidget {
               navigator.push(
                 MaterialPageRoute(
                   builder: (context) => const DepositScreen(),
+                ),
+              );
+            },
+          ),
+          spacer,
+          FilledButton.tonal(
+            child: const Text('Account management'),
+            onPressed: () {
+              final navigator = Navigator.of(context);
+              navigator.push(
+                MaterialPageRoute(
+                  builder: (context) => const AccountScreen(),
                 ),
               );
             },

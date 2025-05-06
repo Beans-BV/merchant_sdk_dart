@@ -18,10 +18,15 @@
       - [Generate Deeplink](#generate-deeplink)
       - [Generate PNG QR Code](#generate-png-qr-code)
       - [Generate SVG QR Code](#generate-svg-qr-code)
+      - [Create Company Account](#create-company-account)
+      - [Delete Company Account](#delete-company-account)
+      - [Upload Company Account Avatar](#upload-company-account-avatar)
+      - [Get Company Account Avatar](#get-company-account-avatar)
   - [Webhook Notifications](#webhook-notifications)
 - [Examples](#examples)
   - [Checkout](#checkout)
   - [Deposit](#deposit)
+  - [Account Management](#account-management)
   - [Developer](#developer)
 - [Questions and Answers](#questions-and-answers)
   - [Do I have to use stroops?](#do-i-have-to-use-stroops)
@@ -102,6 +107,40 @@ log('Generated SVG QR code: ${response.svgQrCode}');
 final response = await merchant.generatePngQRCode('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook', 250);
 log('Generated deeplink: ${response.deeplink}');
 log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
+
+// Create a company account
+final name = {
+  'en': "Marketing Account",
+  'vn': "Tài khoản Marketing"
+};
+final accountResponse = await sdk.createCompanyAccount(
+  "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
+  name
+);
+log('Created company account: ${accountResponse.account.id}');
+
+// Upload avatar for a company account
+final imageBytes = await File('path_to_image.jpg').readAsBytes();
+final updatedAccount = await sdk.uploadCompanyAccountAvatar(
+  "me",
+  "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
+  imageBytes,
+  "image/jpeg"
+);
+log('Account updated with avatar: ${updatedAccount.avatarId}');
+
+// Get avatar for a company account
+final avatarBytes = await sdk.getCompanyAccountAvatar(
+  "me",
+  accountId,
+  avatarId
+);
+// Use avatarBytes to display the image
+
+// Delete account
+final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
+log('Deleted account with ID: ${response.account.id}');
+log('Deletion status: ${response.status}');
 ```
 
 # API Reference
@@ -249,6 +288,111 @@ log('Generated deeplink: ${response.deeplink}');
 log('Generated SVG QR code: ${response.svgQrCode}');
 ```
 
+#### Create Company Account
+
+*Creates an account for the company.*
+
+Method Signature:<br>
+*`Future<CreateCompanyAccountResponse> createCompanyAccount(...)`*
+
+Parameters:<br>
+  - `stellarAccountId`: *The Stellar account ID for the account.*
+  - `name`: *The name of the account in different languages as a LanguageString object.*
+
+Returns:<br>
+`Future<CreateCompanyAccountResponse>`: *A future that resolves with the response object containing the created company account.*
+
+Return Object Properties:<br>
+  - `account`: *The CompanyAccount object representing the created account.*
+
+#### Delete Company Account
+
+*Deletes an account for the company.*
+
+Method Signature:<br>
+*`Future<DeleteCompanyAccountResponse> deleteCompanyAccount(...)`*
+
+Parameters:<br>
+  - `stellarAccountId`: *The Stellar account ID of the account to delete.*
+
+Returns:<br>
+`Future<DeleteCompanyAccountResponse>`: *A future that resolves with the response object containing information about the deleted account.*
+
+Return Object Properties:<br>
+  - `account`: *The CompanyAccount object representing the deleted account.*
+  - `status`: *The status of the deletion operation, typically "deleted".*
+
+Example:<br>
+```dart
+final name = LanguageString(
+  en: "Marketing Account",
+  vi: "Tài khoản Marketing"
+);
+final response = await sdk.createCompanyAccount(
+  "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
+  name
+);
+log('Created company account: ${response.account.id}');
+
+final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
+log('Deleted account with ID: ${response.account.id}');
+log('Deletion status: ${response.status}');
+```
+
+
+#### Upload Company Account Avatar
+
+*Uploads an avatar for a company account.*
+
+Method Signature:<br>
+*`Future<CompanyAccount> uploadCompanyAccountAvatar(...)`*
+
+Parameters:<br>
+  - `companyId`: *The ID of the company, or the string "me" to automatically resolve the ID from the provided API token.*
+  - `stellarAccountId`: *The Stellar account ID of the account.*
+  - `imageBytes`: *The image data as Uint8List (bytes).*
+  - `mimeType`: *The MIME type of the image (e.g., 'image/jpeg', 'image/png').*
+
+Returns:<br>
+`Future<CompanyAccount>`: *A future that resolves with the updated CompanyAccount object.*
+
+Example:<br>
+```dart
+final imageBytes = await File('path_to_image.jpg').readAsBytes();
+final updatedAccount = await sdk.uploadCompanyAccountAvatar(
+  "me",
+  "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
+  imageBytes,
+  "image/jpeg"
+);
+log('Account updated with avatar: ${updatedAccount.avatarId}');
+```
+
+#### Get Company Account Avatar
+
+*Gets the avatar for a company account.*
+
+Method Signature:<br>
+*`Future<Uint8List> getCompanyAccountAvatar(...)`*
+
+Parameters:<br>
+  - `companyId`: *The ID of the company, or the string "me" to automatically resolve the ID from the provided API token.*
+  - `accountId`: *The ID of the account.*
+  - `avatarId`: *The ID of the avatar.*
+
+Returns:<br>
+`Future<Uint8List>`: *A future that resolves with the image data as bytes.*
+
+Example:<br>
+```dart
+final avatarBytes = await sdk.getCompanyAccountAvatar(
+  "me",
+  accountId,
+  avatarId
+);
+// Use avatarBytes to display the image
+```
+
 ## Webhook Notifications
 
 *Beans Merchant API sends a webhook notification to the provided URL when a payment is received.*
@@ -277,6 +421,18 @@ Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/
 We've added an example that showcases a simple deposit flow for a fictional decentralized exchange. This shows you how easy it is to generate a payment request for something like a deposit.
 
 Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/deposit.dart).
+
+## Account Management
+
+We've added an example that demonstrates how to create and manage company accounts. This example shows how to:
+- Create a new account with multi-language support
+- Upload an avatar for the account
+- Retrieve and display the avatar
+- Delete an account when it's no longer needed
+
+This functionality is particularly useful for businesses that need to manage multiple Stellar accounts under a single company account.
+
+Find the full example code [here](https://github.com/Beans-BV/merchant_sdk_dart/blob/main/example/lib/account.dart).
 
 ## Developer
 
