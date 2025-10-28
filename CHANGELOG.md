@@ -1,3 +1,12 @@
+## 5.0.0
+* Added `LanguageString` class for better multi-language support
+* Added `getCompanyAccounts()` method to fetch all company accounts
+* 
+* **BREAKING CHANGES:**
+*  - Renamed `getMerchantAccount()` to `getCompanyAccount()` for consistency
+*  - `createCompanyAccount()` now requires `LanguageString` instead of `Map<String, String>`
+*  - English language ('en') is now required for all `LanguageString` instances
+
 ## 4.0.0
 * Beans API v4 support
 * 
