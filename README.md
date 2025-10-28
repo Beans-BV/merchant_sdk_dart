@@ -9,10 +9,8 @@
   - [Installation](#installation)
   - [Usage](#usage)
 - [API Reference](#api-reference)
-  - [BeansMerchantSdkDomain](#beansmerchantsdkdomain)
-    - [Constants](#constants)
   - [BeansMerchantSdk](#beansmerchantsdk)
-    - [Constructor](#constructor)
+    - [Constructors](#constructors)
     - [Methods](#methods)
       - [Fetch Stellar Currencies](#fetch-stellar-currencies)
       - [Generate Deeplink](#generate-deeplink)
@@ -22,6 +20,8 @@
       - [Delete Company Account](#delete-company-account)
       - [Upload Company Account Avatar](#upload-company-account-avatar)
       - [Get Company Account Avatar](#get-company-account-avatar)
+      - [Get Company Accounts](#get-company-accounts)
+      - [Get Merchant Account](#get-merchant-account)
   - [Webhook Notifications](#webhook-notifications)
 - [Examples](#examples)
   - [Checkout](#checkout)
@@ -74,10 +74,17 @@ Thank you for choosing Beans App. We look forward to facilitating your business 
 
 ## Installation
 
-You can install the package using npm:
+Add this to your package's `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  beans_merchant_sdk: ^4.0.0
+```
+
+Then run:
 
 ```bash
-npm install beans-merchant-sdk
+flutter pub get
 ```
 
 ## Usage
@@ -85,9 +92,14 @@ npm install beans-merchant-sdk
 ```dart
 import 'package:beans_merchant_sdk/beans_merchant_sdk.dart';
 
-// Create an instance of BeansMerchantSdk
-final sdk = BeansMerchantSdk(
-  apiKey: 'apiKey',
+// Create an instance of BeansMerchantSdk for production
+final sdk = BeansMerchantSdk.production(
+  apiKey: 'your-api-key',
+);
+
+// Or for staging environment
+final stagingSdk = BeansMerchantSdk.staging(
+  apiKey: 'your-staging-api-key',
 );
 
 // Fetch currencies
@@ -95,18 +107,41 @@ final response = await sdk.fetchStellarCurrencies('stellarAccountId');
 log('Available Stellar currencies: ${response.stellarCurrencies}');
 
 // Generate deeplink
-final response = await.generateDeeplink('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook');
-log('Generated deeplink: ${response.deeplink}');
+final deeplinkResponse = await sdk.generateDeeplink(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook'
+);
+log('Generated deeplink: ${deeplinkResponse.deeplink}');
 
 // Generate SVG QR code
-final response = await sdk.generateSvgQRCode('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook', 250);
-log('Generated deeplink: ${response.deeplink}');
-log('Generated SVG QR code: ${response.svgQrCode}');
+final svgResponse = await sdk.generateSvgQrCode(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook',
+  size: 250
+);
+log('Generated deeplink: ${svgResponse.deeplink}');
+log('Generated SVG QR code: ${svgResponse.svgQrCode}');
 
 // Generate PNG QR code
-final response = await merchant.generatePngQRCode('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook', 250);
-log('Generated deeplink: ${response.deeplink}');
-log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
+final pngResponse = await sdk.generatePngQrCode(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook',
+  preferredSize: 250
+);
+log('Generated deeplink: ${pngResponse.deeplink}');
+log('Generated PNG QR code: ${pngResponse.pngQrCodeBase64String}');
 
 // Create a company account
 final name = {
@@ -137,36 +172,51 @@ final avatarBytes = await sdk.getCompanyAccountAvatar(
 );
 // Use avatarBytes to display the image
 
+// Get all company accounts
+final accounts = await sdk.getCompanyAccounts();
+log('Total accounts: ${accounts.length}');
+
+// Get specific merchant account
+final account = await sdk.getMerchantAccount('stellarAccountId');
+log('Account name: ${account.name}');
+
 // Delete account
-final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
-log('Deleted account with ID: ${response.account.id}');
-log('Deletion status: ${response.status}');
+final deleteResponse = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
+log('Deleted account with ID: ${deleteResponse.account.id}');
+log('Deletion status: ${deleteResponse.status}');
 ```
 
 # API Reference
 
 The Beans Merchant SDK provides a simple and intuitive interface for interacting with the Beans Merchant API. This section outlines the available methods and response objects provided by the SDK.
 
-## BeansMerchantSdkDomain
-
-The `BeansMerchantSdkDomain` class provides constants for setting the API domain.
-
-### Constants
-
-- `production`: The production API domain (`api.beansapp.com`).
-- `staging`: The sandbox API domain (`api.staging.beansapp.com`).
-
 ## BeansMerchantSdk
 
 The `BeansMerchantSdk` class provides methods for interacting with the Beans Merchant API.
 
-### Constructor
+### Constructors
 
-`BeansMerchantSdk(...)`: Initializes a new SDK instance.
+#### Production Environment
+`BeansMerchantSdk.production({required String apiKey, http.Client? httpClient})`: Initializes a new SDK instance for production environment.
 
 Parameters:
-- `apiDomain` *(optional)*: The domain of the merchant API. *Default is `api.beansapp.com`.*
 - `apiKey`: Your Beans Merchant API key.
+- `httpClient` *(optional)*: Custom HTTP client for testing or custom configurations.
+
+#### Staging Environment
+`BeansMerchantSdk.staging({required String apiKey, http.Client? httpClient})`: Initializes a new SDK instance for staging environment.
+
+Parameters:
+- `apiKey`: Your Beans Merchant API key.
+- `httpClient` *(optional)*: Custom HTTP client for testing or custom configurations.
+
+#### Custom Environment
+`BeansMerchantSdk.custom({required Uri apiBaseUrl, required String apiKey, http.Client? httpClient})`: Initializes a new SDK instance with a custom API base URL.
+
+Parameters:
+- `apiBaseUrl`: The base URL of the merchant API.
+- `apiKey`: Your Beans Merchant API key.
+- `httpClient` *(optional)*: Custom HTTP client for testing or custom configurations.
 
 ### Methods
 
@@ -197,12 +247,12 @@ log('Available Stellar currencies: ${response.stellarCurrencies}');
 *Creates a payment request deeplink.*
 
 Method Signature:<br>
-*`Future<DeeplinkResponse> generateDeeplink(...)`*
+*`Future<DeeplinkResponse> generateDeeplink(String stellarAccountId, String stellarCurrencyId, double amount, String memo, {int? maxAllowedPayments, String? webhookUrl})`*
 
 Parameters:<br>
   - `stellarAccountId`: *Your Stellar account ID.*
-  - `currencyId`: *Stellar currency ID.*
-  - `amount`: *Amount for the payment request.*
+  - `stellarCurrencyId`: *Stellar currency ID.*
+  - `amount`: *Amount for the payment request (double).*
   - `memo`: *Memo for the payment request.*
   - `maxAllowedPayments`: *(Optional) Maximum number of payments allowed for the payment request.*
     - *Unlimited is -1*
@@ -218,7 +268,14 @@ Return Object Properties:<br>
 
 Example:<br>
 ```dart
-final response = await.generateDeeplink('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook');
+final response = await sdk.generateDeeplink(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook'
+);
 log('Generated deeplink: ${response.deeplink}');
 ```
 
@@ -227,12 +284,12 @@ log('Generated deeplink: ${response.deeplink}');
 *Generates a PNG QR code for payment requests.*
 
 Method Signature:<br>
-*`Future<PngQrCodeResponse> generatePngQrCode(...)`*
+*`Future<PngQrCodeResponse> generatePngQrCode(String stellarAccountId, String stellarCurrencyId, double amount, String memo, {int? maxAllowedPayments, String? webhookUrl, int? preferredSize})`*
 
 Parameters:<br>
   - `stellarAccountId`: *Your Stellar account ID.*
-  - `currencyId`: *Stellar currency ID.*
-  - `amount`: *Amount for the payment request.*
+  - `stellarCurrencyId`: *Stellar currency ID.*
+  - `amount`: *Amount for the payment request (double).*
   - `memo`: *Memo for the payment request.*
   - `maxAllowedPayments`: *(Optional) Maximum number of payments allowed for the payment request.*
     - *Unlimited is -1*
@@ -250,7 +307,15 @@ Return Object Properties:<br>
 
 Example:<br>
 ```dart
-final response = await merchant.generatePngQRCode('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook', 250);
+final response = await sdk.generatePngQrCode(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook',
+  preferredSize: 250
+);
 log('Generated deeplink: ${response.deeplink}');
 log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
 ```
@@ -260,12 +325,12 @@ log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
 *Generates an SVG QR code for payment requests.*
 
 Method Signature:<br>
-*`Future<SvgQrCodeResponse> generateSvgQrCode(...)`*
+*`Future<SvgQrCodeResponse> generateSvgQrCode(String stellarAccountId, String stellarCurrencyId, double amount, String memo, {int? maxAllowedPayments, String? webhookUrl, int? size})`*
 
 Parameters:<br>
   - `stellarAccountId`: *Your Stellar account ID.*
-  - `currencyId`: *Stellar currency ID.*
-  - `amount`: *Amount for the payment request.*
+  - `stellarCurrencyId`: *Stellar currency ID.*
+  - `amount`: *Amount for the payment request (double).*
   - `memo`: *Memo for the payment request.*
   - `maxAllowedPayments`: *(Optional) Maximum number of payments allowed for the payment request.*
     - *Unlimited is -1*
@@ -283,7 +348,15 @@ Return Object Properties:<br>
 
 Example:<br>
 ```dart
-final response = await sdk.generateSvgQRCode('stellarAccountId', 'stellarCurrencyId', 100, 'memo', 1, 'https://your-domain.com/webhook', 250);
+final response = await sdk.generateSvgQrCode(
+  'stellarAccountId', 
+  'stellarCurrencyId', 
+  100.0, 
+  'memo',
+  maxAllowedPayments: 1,
+  webhookUrl: 'https://your-domain.com/webhook',
+  size: 250
+);
 log('Generated deeplink: ${response.deeplink}');
 log('Generated SVG QR code: ${response.svgQrCode}');
 ```
@@ -293,11 +366,11 @@ log('Generated SVG QR code: ${response.svgQrCode}');
 *Creates an account for the company.*
 
 Method Signature:<br>
-*`Future<CreateCompanyAccountResponse> createCompanyAccount(...)`*
+*`Future<CreateCompanyAccountResponse> createCompanyAccount(String stellarAccountId, Map<String, String> name)`*
 
 Parameters:<br>
   - `stellarAccountId`: *The Stellar account ID for the account.*
-  - `name`: *The name of the account in different languages as a LanguageString object.*
+  - `name`: *The name of the account in different languages as a map where the key is the language code (e.g., 'en', 'vn') and the value is the name in that language.*
 
 Returns:<br>
 `Future<CreateCompanyAccountResponse>`: *A future that resolves with the response object containing the created company account.*
@@ -310,7 +383,7 @@ Return Object Properties:<br>
 *Deletes an account for the company.*
 
 Method Signature:<br>
-*`Future<DeleteCompanyAccountResponse> deleteCompanyAccount(...)`*
+*`Future<DeleteCompanyAccountResponse> deleteCompanyAccount(String stellarAccountId)`*
 
 Parameters:<br>
   - `stellarAccountId`: *The Stellar account ID of the account to delete.*
@@ -324,16 +397,6 @@ Return Object Properties:<br>
 
 Example:<br>
 ```dart
-final name = LanguageString(
-  en: "Marketing Account",
-  vi: "Tài khoản Marketing"
-);
-final response = await sdk.createCompanyAccount(
-  "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
-  name
-);
-log('Created company account: ${response.account.id}');
-
 final response = await sdk.deleteCompanyAccount('GCQYCNYU3T73JCQ2J36A3JJ5CUQO4DY4EOKMPUL5723ZH7N6XMMNPAA3');
 log('Deleted account with ID: ${response.account.id}');
 log('Deletion status: ${response.status}');
@@ -345,13 +408,13 @@ log('Deletion status: ${response.status}');
 *Uploads an avatar for a company account.*
 
 Method Signature:<br>
-*`Future<CompanyAccount> uploadCompanyAccountAvatar(...)`*
+*`Future<CompanyAccount> uploadCompanyAccountAvatar(String companyId, String stellarAccountId, dynamic imagePathOrBytes, [String? mimeType])`*
 
 Parameters:<br>
   - `companyId`: *The ID of the company, or the string "me" to automatically resolve the ID from the provided API token.*
   - `stellarAccountId`: *The Stellar account ID of the account.*
-  - `imageBytes`: *The image data as Uint8List (bytes).*
-  - `mimeType`: *The MIME type of the image (e.g., 'image/jpeg', 'image/png').*
+  - `imagePathOrBytes`: *Either a String file path or Uint8List of image bytes.*
+  - `mimeType`: *(Optional) The MIME type of the image (e.g., 'image/jpeg', 'image/png'). Required if using raw bytes.*
 
 Returns:<br>
 `Future<CompanyAccount>`: *A future that resolves with the updated CompanyAccount object.*
@@ -393,12 +456,51 @@ final avatarBytes = await sdk.getCompanyAccountAvatar(
 // Use avatarBytes to display the image
 ```
 
+#### Get Company Accounts
+
+*Fetches all merchant accounts for the company.*
+
+Method Signature:<br>
+*`Future<List<CompanyAccount>> getCompanyAccounts()`*
+
+Returns:<br>
+`Future<List<CompanyAccount>>`: *A future that resolves with a list of all company accounts.*
+
+Example:<br>
+```dart
+final accounts = await sdk.getCompanyAccounts();
+log('Total accounts: ${accounts.length}');
+for (final account in accounts) {
+  log('Account: ${account.name} (${account.stellarAccountId})');
+}
+```
+
+#### Get Merchant Account
+
+*Fetches a specific merchant account by Stellar account ID.*
+
+Method Signature:<br>
+*`Future<CompanyAccount> getMerchantAccount(String stellarAccountId)`*
+
+Parameters:<br>
+  - `stellarAccountId`: *The Stellar account ID of the account to fetch.*
+
+Returns:<br>
+`Future<CompanyAccount>`: *A future that resolves with the CompanyAccount object.*
+
+Example:<br>
+```dart
+final account = await sdk.getMerchantAccount('stellarAccountId');
+log('Account name: ${account.name}');
+log('Account ID: ${account.id}');
+```
+
 ## Webhook Notifications
 
 *Beans Merchant API sends a webhook notification to the provided URL when a payment is received.*
 
 Example Webhook Payload:<br>
-```darton
+```json
 {
   "PaymentRequestId": "e3cfa903-548f-475c-a9f2-ebf3f4e2fa17",
   "Memo": "example",
