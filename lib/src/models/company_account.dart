@@ -1,8 +1,10 @@
+import 'language_string.dart';
+
 class CompanyAccount {
   final String id;
   final String companyId;
   final String stellarAccountId;
-  final Map<String, String> name;
+  final LanguageString name;
   final String? avatarId;
 
   CompanyAccount({
@@ -14,20 +16,11 @@ class CompanyAccount {
   });
 
   factory CompanyAccount.fromJson(Map<String, dynamic> json) {
-    final Map<String, String> nameMap = {};
-    if (json['name'] is Map) {
-      (json['name'] as Map).forEach((key, value) {
-        if (value is String) {
-          nameMap[key.toString()] = value;
-        }
-      });
-    }
-
     return CompanyAccount(
       id: json['id'],
       companyId: json['companyId'],
       stellarAccountId: json['stellarAccountId'],
-      name: nameMap,
+      name: LanguageString.fromJson(json['name'] ?? {}),
       avatarId: json['avatarId'],
     );
   }
@@ -37,8 +30,8 @@ class CompanyAccount {
       'id': id,
       'companyId': companyId,
       'stellarAccountId': stellarAccountId,
-      'name': name,
+      'name': name.toJson(),
       'avatarId': avatarId,
     };
   }
-} 
+}

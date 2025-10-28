@@ -9,6 +9,7 @@ import 'models/company_account.dart';
 import 'models/create_company_account_response.dart';
 import 'models/delete_company_account_response.dart';
 import 'models/fetch_stellar_currencies_response.dart';
+import 'models/language_string.dart';
 import 'models/qr_code_response.dart';
 
 class BeansMerchantSdk {
@@ -51,9 +52,7 @@ class BeansMerchantSdk {
       Uri.parse(
         '$apiBaseUrl/companies/me/accounts/$stellarAccountId/stellar-currencies',
       ),
-      headers: {
-        'X-Beans-Company-Api-Key': apiKey,
-      },
+      headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {
@@ -75,19 +74,14 @@ class BeansMerchantSdk {
     int? maxAllowedPayments,
     String? webhookUrl,
   }) async {
-    return await generatePaymentRequest<DeeplinkResponse>(
-      stellarAccountId,
-      {
-        "stellarCurrencyId": stellarCurrencyId,
-        "amount": amount,
-        "memo": memo,
-        "maxAllowedPayments": maxAllowedPayments,
-        "paymentReceivedWebHookUrl": webhookUrl,
-        "deeplink": {
-          "include": true,
-        }
-      },
-    );
+    return await generatePaymentRequest<DeeplinkResponse>(stellarAccountId, {
+      "stellarCurrencyId": stellarCurrencyId,
+      "amount": amount,
+      "memo": memo,
+      "maxAllowedPayments": maxAllowedPayments,
+      "paymentReceivedWebHookUrl": webhookUrl,
+      "deeplink": {"include": true},
+    });
   }
 
   Future<PngQrCodeResponse> generatePngQrCode(
@@ -99,21 +93,18 @@ class BeansMerchantSdk {
     String? webhookUrl,
     int? preferredSize,
   }) async {
-    return await generatePaymentRequest<PngQrCodeResponse>(
-      stellarAccountId,
-      {
-        "stellarCurrencyId": stellarCurrencyId,
-        "amount": amount,
-        "memo": memo,
-        "maxAllowedPayments": maxAllowedPayments,
-        "paymentReceivedWebHookUrl": webhookUrl,
-        "deeplink": {"include": true},
-        "pngQrCodeBase64String": {
-          "include": true,
-          "preferredSize": preferredSize
-        }
+    return await generatePaymentRequest<PngQrCodeResponse>(stellarAccountId, {
+      "stellarCurrencyId": stellarCurrencyId,
+      "amount": amount,
+      "memo": memo,
+      "maxAllowedPayments": maxAllowedPayments,
+      "paymentReceivedWebHookUrl": webhookUrl,
+      "deeplink": {"include": true},
+      "pngQrCodeBase64String": {
+        "include": true,
+        "preferredSize": preferredSize,
       },
-    );
+    });
   }
 
   Future<SvgQrCodeResponse> generateSvgQrCode(
@@ -125,21 +116,15 @@ class BeansMerchantSdk {
     String? webhookUrl,
     int? size,
   }) async {
-    return await generatePaymentRequest<SvgQrCodeResponse>(
-      stellarAccountId,
-      {
-        "stellarCurrencyId": stellarCurrencyId,
-        "amount": amount,
-        "memo": memo,
-        "maxAllowedPayments": maxAllowedPayments,
-        "paymentReceivedWebHookUrl": webhookUrl,
-        "deeplink": {"include": true},
-        "svgQrCode": {
-          "include": true,
-          "size": size,
-        }
-      },
-    );
+    return await generatePaymentRequest<SvgQrCodeResponse>(stellarAccountId, {
+      "stellarCurrencyId": stellarCurrencyId,
+      "amount": amount,
+      "memo": memo,
+      "maxAllowedPayments": maxAllowedPayments,
+      "paymentReceivedWebHookUrl": webhookUrl,
+      "deeplink": {"include": true},
+      "svgQrCode": {"include": true, "size": size},
+    });
   }
 
   Future<T> generatePaymentRequest<T extends PaymentRequestResponse>(
@@ -183,11 +168,10 @@ class BeansMerchantSdk {
   /// Creates an account for the company
   ///
   /// [stellarAccountId] The Stellar account ID for the account
-  /// [name] The name of the account in different languages as a map where
-  /// the key is the language code (e.g., 'en', 'vn') and the value is the name in that language
+  /// [name] The name of the account in different languages as a LanguageString
   Future<CreateCompanyAccountResponse> createCompanyAccount(
     String stellarAccountId,
-    Map<String, String> name,
+    LanguageString name,
   ) async {
     final response = await httpClient.post(
       Uri.parse('$apiBaseUrl/companies/me/account'),
@@ -195,10 +179,7 @@ class BeansMerchantSdk {
         'Content-Type': 'application/json',
         'X-Beans-Company-Api-Key': apiKey,
       },
-      body: jsonEncode({
-        'stellarAccountId': stellarAccountId,
-        'name': name,
-      }),
+      body: jsonEncode({'stellarAccountId': stellarAccountId, 'name': name.toJson()}),
     );
 
     if (response.statusCode == 201) {
@@ -261,7 +242,8 @@ class BeansMerchantSdk {
       );
     } else {
       throw ArgumentError(
-          'imagePathOrBytes must be either a String path or Uint8List bytes');
+        'imagePathOrBytes must be either a String path or Uint8List bytes',
+      );
     }
 
     final streamedResponse = await httpClient.send(request);
@@ -306,9 +288,7 @@ class BeansMerchantSdk {
       Uri.parse(
         '$apiBaseUrl/companies/$companyId/accounts/$accountId/avatar/$avatarId',
       ),
-      headers: {
-        'X-Beans-Company-Api-Key': apiKey,
-      },
+      headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {
@@ -351,9 +331,7 @@ class BeansMerchantSdk {
   Future<List<CompanyAccount>> getCompanyAccounts() async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts'),
-      headers: {
-        'X-Beans-Company-Api-Key': apiKey,
-      },
+      headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {
@@ -374,9 +352,7 @@ class BeansMerchantSdk {
   Future<CompanyAccount> getMerchantAccount(String stellarAccountId) async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts/$stellarAccountId'),
-      headers: {
-        'X-Beans-Company-Api-Key': apiKey,
-      },
+      headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {

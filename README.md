@@ -9,6 +9,7 @@
   - [Installation](#installation)
   - [Usage](#usage)
 - [API Reference](#api-reference)
+  - [LanguageString](#languagestring)
   - [BeansMerchantSdk](#beansmerchantsdk)
     - [Constructors](#constructors)
     - [Methods](#methods)
@@ -144,10 +145,10 @@ log('Generated deeplink: ${pngResponse.deeplink}');
 log('Generated PNG QR code: ${pngResponse.pngQrCodeBase64String}');
 
 // Create a company account
-final name = {
+final name = LanguageString.from({
   'en': "Marketing Account",
   'vn': "Tài khoản Marketing"
-};
+});
 final accountResponse = await sdk.createCompanyAccount(
   "GBZX4364PEPQTDICMIQDZ56K4T75QZCR4NBEYKO6PDRJAHZKGUOJPCXB",
   name
@@ -189,6 +190,77 @@ log('Deletion status: ${deleteResponse.status}');
 # API Reference
 
 The Beans Merchant SDK provides a simple and intuitive interface for interacting with the Beans Merchant API. This section outlines the available methods and response objects provided by the SDK.
+
+## LanguageString
+
+The `LanguageString` class provides a specialized way to handle multi-language strings in the SDK. It's used for account names and other localized content where keys are language codes (e.g., 'en', 'vn') and values are the translated strings.
+
+**Note:** The English language ('en') is required for all LanguageString instances.
+
+### Constructors
+
+#### Default Constructor
+`LanguageString()`: Creates a LanguageString with an empty English translation.
+
+#### From Map Constructor
+`LanguageString.from(Map<String, String> base)`: Creates a LanguageString from an existing map. The map must contain an 'en' key.
+
+#### From JSON Constructor
+`LanguageString.fromJson(Map<String, dynamic> json)`: Creates a LanguageString from a JSON map. The JSON must contain an 'en' key.
+
+#### From JSON String Constructor
+`LanguageString.fromJsonString(String jsonString)`: Creates a LanguageString from a JSON string. The JSON must contain an 'en' key.
+
+### Methods
+
+#### Language Access
+- `getLanguage(String languageCode)`: Gets the string for a specific language code. Returns null if not found.
+- `getLanguageWithFallback(String languageCode, String fallbackLanguageCode)`: Gets the string with a fallback language.
+- `getLanguageOrDefault(String languageCode, String defaultValue)`: Gets the string with a default value.
+
+#### Utility Methods
+- `hasLanguage(String languageCode)`: Checks if a specific language is available.
+- `copyWith(Map<String, String> additionalTranslations)`: Creates a new LanguageString with additional translations.
+- `toJson()`: Converts to a JSON map.
+- `toJsonString()`: Converts to a JSON string.
+
+#### Map-like Access
+The LanguageString class provides map-like access using the `[]` operator:
+```dart
+final name = LanguageString.from({'en': 'Hello', 'vn': 'Xin chào'});
+print(name['en']); // Output: Hello
+name['fr'] = 'Bonjour'; // Add French translation
+```
+
+### Properties
+- `languageCodes`: Gets all available language codes.
+- `translations`: Gets all available translations.
+- `languageCount`: Gets the number of available languages.
+- `isEmpty`: Checks if there are no translations.
+- `isNotEmpty`: Checks if there are translations.
+
+### Example
+```dart
+// Create a LanguageString
+final name = LanguageString.from({
+  'en': "Marketing Account",
+  'vn': "Tài khoản Marketing",
+  'fr': "Compte Marketing"
+});
+
+// Access translations
+print(name.getLanguage('en')); // Output: Marketing Account
+print(name.getLanguageOrDefault('es', 'Default Name')); // Output: Default Name
+
+// Check if language exists
+if (name.hasLanguage('vn')) {
+  print('Vietnamese translation available');
+}
+
+// Convert to JSON
+final json = name.toJson();
+print(json); // Output: {en: Marketing Account, vn: Tài khoản Marketing, fr: Compte Marketing}
+```
 
 ## BeansMerchantSdk
 
@@ -366,11 +438,11 @@ log('Generated SVG QR code: ${response.svgQrCode}');
 *Creates an account for the company.*
 
 Method Signature:<br>
-*`Future<CreateCompanyAccountResponse> createCompanyAccount(String stellarAccountId, Map<String, String> name)`*
+*`Future<CreateCompanyAccountResponse> createCompanyAccount(String stellarAccountId, LanguageString name)`*
 
 Parameters:<br>
   - `stellarAccountId`: *The Stellar account ID for the account.*
-  - `name`: *The name of the account in different languages as a map where the key is the language code (e.g., 'en', 'vn') and the value is the name in that language.*
+  - `name`: *The name of the account in different languages as a LanguageString object.*
 
 Returns:<br>
 `Future<CreateCompanyAccountResponse>`: *A future that resolves with the response object containing the created company account.*

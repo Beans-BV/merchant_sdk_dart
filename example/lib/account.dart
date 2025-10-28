@@ -108,9 +108,9 @@ class _AccountScreenState extends State<AccountScreen> {
     try {
       final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
 
-      final Map<String, String> name = {
+      final name = LanguageString.from({
         'en': nameEn,
-      };
+      });
 
       if (nameVn.isNotEmpty) {
         name['vn'] = nameVn;
@@ -386,7 +386,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(8),
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 child: Text(
                   _errorMessage!,
                   style: TextStyle(color: Colors.red.shade800),
@@ -428,7 +428,7 @@ class _AccountScreenState extends State<AccountScreen> {
               if (_deleteStatus != null) ...[
                 Container(
                   padding: const EdgeInsets.all(8),
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   child: Text(
                     _deleteStatus!,
                     style: TextStyle(color: Colors.green.shade800),

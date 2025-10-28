@@ -536,49 +536,45 @@ class _AdditionalInformationSubPage extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: SizedBox(
                       width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ListTile(
-                            title: const Text('Beans App'),
-                            subtitle: const Text(
-                              'Pay with your preferred currency. Free of charge.',
+                      child: RadioGroup(
+                        groupValue: 'beans',
+                        onChanged: (value) {},
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListTile(
+                              title: Text('Beans App'),
+                              subtitle: Text(
+                                'Pay with your preferred currency. Free of charge.',
+                              ),
+                              leading: Radio(
+                                value: 'beans',
+                              ),
                             ),
-                            leading: Radio(
-                              value: 'beans',
-                              groupValue: 'beans',
-                              onChanged: (value) {},
+                            ListTile(
+                              title: Text('iDEAL'),
+                              leading: Radio(
+                                value: 'ideal',
+                              ),
                             ),
-                          ),
-                          ListTile(
-                            title: const Text('iDEAL'),
-                            leading: Radio(
-                              value: 'ideal',
-                              groupValue: 'beans',
-                              onChanged: (value) {},
+                            ListTile(
+                              title: Text('Credit Card'),
+                              leading: Radio(
+                                value: 'credit_card',
+                              ),
                             ),
-                          ),
-                          ListTile(
-                            title: const Text('Credit Card'),
-                            leading: Radio(
-                              value: 'credit_card',
-                              groupValue: 'beans',
-                              onChanged: (value) {},
+                            ListTile(
+                              title: Text('Monthly invoice'),
+                              subtitle: Text(
+                                'Pay within 14 days of receiving invoice. Free of charge with timely payment.',
+                              ),
+                              leading: Radio(
+                                value: 'monthly_invoice',
+                              ),
                             ),
-                          ),
-                          ListTile(
-                            title: const Text('Monthly invoice'),
-                            subtitle: const Text(
-                              'Pay within 14 days of receiving invoice. Free of charge with timely payment.',
-                            ),
-                            leading: Radio(
-                              value: 'monthly_invoice',
-                              groupValue: 'payment_method',
-                              onChanged: (value) {},
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
