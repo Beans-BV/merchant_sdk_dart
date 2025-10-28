@@ -5,14 +5,14 @@ class CompanyAccount {
   final String companyId;
   final String stellarAccountId;
   final LanguageString name;
-  final String? avatarId;
+  final Uri? avatarUrl;
 
-  CompanyAccount({
+  const CompanyAccount({
     required this.id,
     required this.companyId,
     required this.stellarAccountId,
     required this.name,
-    this.avatarId,
+    required this.avatarUrl,
   });
 
   factory CompanyAccount.fromJson(Map<String, dynamic> json) {
@@ -21,7 +21,8 @@ class CompanyAccount {
       companyId: json['companyId'],
       stellarAccountId: json['stellarAccountId'],
       name: LanguageString.fromJson(json['name'] ?? {}),
-      avatarId: json['avatarId'],
+      avatarUrl:
+          json['avatarUrl'] != null ? Uri.parse(json['avatarUrl']) : null,
     );
   }
 
@@ -31,7 +32,7 @@ class CompanyAccount {
       'companyId': companyId,
       'stellarAccountId': stellarAccountId,
       'name': name.toJson(),
-      'avatarId': avatarId,
+      'avatarUrl': avatarUrl?.toString(),
     };
   }
 }

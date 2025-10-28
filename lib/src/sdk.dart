@@ -277,23 +277,14 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Gets the avatar for a company account
-  ///
-  /// [companyId] The ID of the company or 'me' for the current company
-  /// [accountId] The ID of the account
-  /// [avatarId] The ID of the avatar
-  Future<Uint8List> getCompanyAccountAvatar(
-    String companyId,
-    String accountId,
-    String avatarId,
+  /// Gets the avatar Url bytes
+  Future<Uint8List> getAvatarUrlBytes(
+    Uri avatarUrl,
   ) async {
     final response = await httpClient.get(
-      Uri.parse(
-        '$apiBaseUrl/companies/$companyId/accounts/$accountId/avatar/$avatarId',
-      ),
+      avatarUrl,
       headers: {'X-Beans-Company-Api-Key': apiKey},
     );
-
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {
