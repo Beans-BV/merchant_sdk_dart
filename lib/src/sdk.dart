@@ -179,7 +179,8 @@ class BeansMerchantSdk {
         'Content-Type': 'application/json',
         'X-Beans-Company-Api-Key': apiKey,
       },
-      body: jsonEncode({'stellarAccountId': stellarAccountId, 'name': name.toJson()}),
+      body: jsonEncode(
+          {'stellarAccountId': stellarAccountId, 'name': name.toJson()}),
     );
 
     if (response.statusCode == 201) {
@@ -348,8 +349,8 @@ class BeansMerchantSdk {
     }
   }
 
-  /// Fetches a specific merchant account by Stellar account ID
-  Future<CompanyAccount> getMerchantAccount(String stellarAccountId) async {
+  /// Fetches a specific company account by Stellar account ID
+  Future<CompanyAccount> getCompanyAccount(String stellarAccountId) async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts/$stellarAccountId'),
       headers: {'X-Beans-Company-Api-Key': apiKey},
@@ -361,7 +362,7 @@ class BeansMerchantSdk {
       throw ApiException(
         response.statusCode,
         response,
-        'Failed to fetch merchant account',
+        'Failed to fetch company account',
       );
     }
   }

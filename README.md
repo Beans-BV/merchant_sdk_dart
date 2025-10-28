@@ -22,7 +22,7 @@
       - [Upload Company Account Avatar](#upload-company-account-avatar)
       - [Get Company Account Avatar](#get-company-account-avatar)
       - [Get Company Accounts](#get-company-accounts)
-      - [Get Merchant Account](#get-merchant-account)
+      - [Get Company Account](#get-company-account)
   - [Webhook Notifications](#webhook-notifications)
 - [Examples](#examples)
   - [Checkout](#checkout)
@@ -177,8 +177,8 @@ final avatarBytes = await sdk.getCompanyAccountAvatar(
 final accounts = await sdk.getCompanyAccounts();
 log('Total accounts: ${accounts.length}');
 
-// Get specific merchant account
-final account = await sdk.getMerchantAccount('stellarAccountId');
+// Get specific company account
+final account = await sdk.getCompanyAccount('stellarAccountId');
 log('Account name: ${account.name}');
 
 // Delete account
@@ -547,12 +547,12 @@ for (final account in accounts) {
 }
 ```
 
-#### Get Merchant Account
+#### Get Company Account
 
-*Fetches a specific merchant account by Stellar account ID.*
+*Fetches a specific company account by Stellar account ID.*
 
 Method Signature:<br>
-*`Future<CompanyAccount> getMerchantAccount(String stellarAccountId)`*
+*`Future<CompanyAccount> getCompanyAccount(String stellarAccountId)`*
 
 Parameters:<br>
   - `stellarAccountId`: *The Stellar account ID of the account to fetch.*
@@ -562,7 +562,7 @@ Returns:<br>
 
 Example:<br>
 ```dart
-final account = await sdk.getMerchantAccount('stellarAccountId');
+final account = await sdk.getCompanyAccount('stellarAccountId');
 log('Account name: ${account.name}');
 log('Account ID: ${account.id}');
 ```
