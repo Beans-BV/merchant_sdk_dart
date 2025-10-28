@@ -72,7 +72,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
-                        ref.read(stellarCurrenciesProvider.notifier).selectCurrency(value);
+                        ref
+                            .read(stellarCurrenciesProvider.notifier)
+                            .selectCurrency(value);
                       }
                     },
                   ),
@@ -89,7 +91,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
                             ))
                         .toList(),
                     onChanged: (value) {
-                      ref.read(companyAccountsProvider.notifier).selectAccount(value);
+                      ref
+                          .read(companyAccountsProvider.notifier)
+                          .selectAccount(value);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -117,7 +121,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
                         labelText: 'Max Allowed Payments (optional)'),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      ref.read(paymentProvider.notifier).updateMaxPayments(value);
+                      ref
+                          .read(paymentProvider.notifier)
+                          .updateMaxPayments(value);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -126,7 +132,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
                     decoration: const InputDecoration(
                         labelText: 'Webhook URL (optional)'),
                     onChanged: (value) {
-                      ref.read(paymentProvider.notifier).updateWebhookUrl(value);
+                      ref
+                          .read(paymentProvider.notifier)
+                          .updateWebhookUrl(value);
                     },
                   ),
                 ],
@@ -287,7 +295,7 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
   Future<void> _generateDeeplink() async {
     final currenciesState = ref.read(stellarCurrenciesProvider);
     final config = ref.read(sdkConfigProvider);
-    
+
     if (currenciesState.selectedCurrency == null) {
       _showSnackBar('Please select a currency first', isError: true);
       return;
@@ -295,15 +303,17 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
 
     try {
       await ref.read(paymentProvider.notifier).generateDeeplink(
-        stellarAccountId: config.stellarAccountId,
-        stellarCurrencyId: currenciesState.selectedCurrency!.id,
-      );
+            stellarAccountId: config.stellarAccountId,
+            stellarCurrencyId: currenciesState.selectedCurrency!.id,
+          );
 
       _showSnackBar('Deeplink generated successfully!');
 
       // Launch deeplink if not web
       if (!kIsWeb && ref.read(paymentProvider).lastPaymentResponse != null) {
-        final deeplink = ref.read(paymentProvider).lastPaymentResponse!['deeplink'] as String;
+        final deeplink = ref
+            .read(paymentProvider)
+            .lastPaymentResponse!['deeplink'] as String;
         await launchUrl(Uri.parse(deeplink));
       }
     } catch (e) {
@@ -314,7 +324,7 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
   Future<void> _generateSvgQrCode() async {
     final currenciesState = ref.read(stellarCurrenciesProvider);
     final config = ref.read(sdkConfigProvider);
-    
+
     if (currenciesState.selectedCurrency == null) {
       _showSnackBar('Please select a currency first', isError: true);
       return;
@@ -322,9 +332,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
 
     try {
       await ref.read(paymentProvider.notifier).generateSvgQrCode(
-        stellarAccountId: config.stellarAccountId,
-        stellarCurrencyId: currenciesState.selectedCurrency!.id,
-      );
+            stellarAccountId: config.stellarAccountId,
+            stellarCurrencyId: currenciesState.selectedCurrency!.id,
+          );
 
       _showSnackBar('SVG QR Code generated successfully!');
     } catch (e) {
@@ -335,7 +345,7 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
   Future<void> _generatePngQrCode() async {
     final currenciesState = ref.read(stellarCurrenciesProvider);
     final config = ref.read(sdkConfigProvider);
-    
+
     if (currenciesState.selectedCurrency == null) {
       _showSnackBar('Please select a currency first', isError: true);
       return;
@@ -343,9 +353,9 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
 
     try {
       await ref.read(paymentProvider.notifier).generatePngQrCode(
-        stellarAccountId: config.stellarAccountId,
-        stellarCurrencyId: currenciesState.selectedCurrency!.id,
-      );
+            stellarAccountId: config.stellarAccountId,
+            stellarCurrencyId: currenciesState.selectedCurrency!.id,
+          );
 
       _showSnackBar('PNG QR Code generated successfully!');
     } catch (e) {
@@ -489,7 +499,7 @@ class PaymentResultCard extends StatelessWidget {
                 ),
               ),
             ],
-            if (paymentResponse['pngQrCodeBase64String'] != null) ...[
+            if (paymentResponse['pngQrCodeBase64'] != null) ...[
               const SizedBox(height: 20),
               Text(
                 'PNG QR Code Preview:',
@@ -522,7 +532,7 @@ class PaymentResultCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: Image.memory(
-                      base64Decode(paymentResponse['pngQrCodeBase64String']),
+                      base64Decode(paymentResponse['pngQrCodeBase64']),
                       fit: BoxFit.contain,
                     ),
                   ),

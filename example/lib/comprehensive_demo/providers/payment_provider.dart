@@ -159,12 +159,12 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         preferredSize: 512,
       );
 
-      if (response.pngQrCodeBase64String.isEmpty) {
+      if (response.pngQrCodeBase64.isEmpty) {
         throw Exception('PNG QR Code generated but no image data received');
       }
 
       // Extract base64 string from data URL if present
-      String base64String = response.pngQrCodeBase64String;
+      var base64String = response.pngQrCodeBase64;
       if (base64String.startsWith('data:image/png;base64,')) {
         base64String = base64String.substring('data:image/png;base64,'.length);
       }
@@ -173,7 +173,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         isGeneratingPayment: false,
         lastPaymentResponse: {
           'type': 'PNG QR Code',
-          'pngQrCodeBase64String': base64String,
+          'pngQrCodeBase64': base64String,
           'deeplink': response.deeplink,
           'paymentRequestId': response.id,
         },

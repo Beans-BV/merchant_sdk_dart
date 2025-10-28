@@ -102,7 +102,7 @@ class BeansMerchantSdk {
       "maxAllowedPayments": maxAllowedPayments,
       "paymentReceivedWebHookUrl": webhookUrl,
       "deeplink": {"include": true},
-      "pngQrCodeBase64String": {
+      "pngQrCode": {
         "include": true,
         "preferredSize": preferredSize,
       },

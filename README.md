@@ -142,7 +142,7 @@ final pngResponse = await sdk.generatePngQrCode(
   preferredSize: 250
 );
 log('Generated deeplink: ${pngResponse.deeplink}');
-log('Generated PNG QR code: ${pngResponse.pngQrCodeBase64String}');
+log('Generated PNG QR code: ${pngResponse.pngQrCodeBase64}');
 
 // Create a company account
 final name = LanguageString.from({
@@ -375,7 +375,7 @@ Returns:<br>
 Return Object Properties:<br>
   - `id`: *The ID of the payment request.*
   - `deeplink`: *The Beans App deeplink for the payment request.*
-  - `pngQrCodeBase64String`: *The base64 encoded PNG QR code containing the deeplink.*
+  - `pngQrCodeBase64`: *The base64 encoded PNG QR code containing the deeplink.*
 
 Example:<br>
 ```dart
@@ -389,7 +389,7 @@ final response = await sdk.generatePngQrCode(
   preferredSize: 250
 );
 log('Generated deeplink: ${response.deeplink}');
-log('Generated PNG QR code: ${response.pngQrCodeBase64String}');
+log('Generated PNG QR code: ${response.pngQrCodeBase64}');
 ```
 
 #### Generate SVG QR Code
