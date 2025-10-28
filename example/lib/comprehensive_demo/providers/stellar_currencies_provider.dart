@@ -84,4 +84,8 @@ class StellarCurrenciesNotifier extends StateNotifier<StellarCurrenciesState> {
   void refresh(String stellarAccountId) {
     loadCurrencies(stellarAccountId);
   }
+
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
 }

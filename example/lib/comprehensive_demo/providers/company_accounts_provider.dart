@@ -191,4 +191,8 @@ class CompanyAccountsNotifier extends StateNotifier<CompanyAccountsState> {
   void refresh() {
     loadAccounts();
   }
+
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
 }
