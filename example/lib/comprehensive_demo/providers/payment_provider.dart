@@ -18,7 +18,7 @@ class PaymentState {
   final String webhookUrl;
   final bool isGeneratingPayment;
   final String? error;
-  final Map<String, dynamic>? lastPaymentResponse;
+  final PaymentRequestResponse? lastPaymentResponse;
 
   const PaymentState({
     this.amount = '10.50',
@@ -37,7 +37,7 @@ class PaymentState {
     String? webhookUrl,
     bool? isGeneratingPayment,
     String? error,
-    Map<String, dynamic>? lastPaymentResponse,
+    PaymentRequestResponse? lastPaymentResponse,
   }) {
     return PaymentState(
       amount: amount ?? this.amount,
@@ -92,11 +92,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
       state = state.copyWith(
         isGeneratingPayment: false,
-        lastPaymentResponse: {
-          'type': 'Deeplink',
-          'deeplink': response.deeplink,
-          'paymentRequestId': response.id,
-        },
+        lastPaymentResponse: response,
       );
     } catch (e) {
       state = state.copyWith(
@@ -126,12 +122,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
       state = state.copyWith(
         isGeneratingPayment: false,
-        lastPaymentResponse: {
-          'type': 'SVG QR Code',
-          'svgQrCode': response.svgQrCode,
-          'deeplink': response.deeplink,
-          'paymentRequestId': response.id,
-        },
+        lastPaymentResponse: response,
       );
     } catch (e) {
       state = state.copyWith(
@@ -159,24 +150,9 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         preferredSize: 512,
       );
 
-      if (response.pngQrCodeBase64.isEmpty) {
-        throw Exception('PNG QR Code generated but no image data received');
-      }
-
-      // Extract base64 string from data URL if present
-      var base64String = response.pngQrCodeBase64;
-      if (base64String.startsWith('data:image/png;base64,')) {
-        base64String = base64String.substring('data:image/png;base64,'.length);
-      }
-
       state = state.copyWith(
         isGeneratingPayment: false,
-        lastPaymentResponse: {
-          'type': 'PNG QR Code',
-          'pngQrCodeBase64': base64String,
-          'deeplink': response.deeplink,
-          'paymentRequestId': response.id,
-        },
+        lastPaymentResponse: response,
       );
     } catch (e) {
       state = state.copyWith(

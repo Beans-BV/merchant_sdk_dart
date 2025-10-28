@@ -311,10 +311,10 @@ class _PaymentsTabState extends ConsumerState<PaymentsTab> {
 
       // Launch deeplink if not web
       if (!kIsWeb && ref.read(paymentProvider).lastPaymentResponse != null) {
-        final deeplink = ref
-            .read(paymentProvider)
-            .lastPaymentResponse!['deeplink'] as String;
-        await launchUrl(Uri.parse(deeplink));
+        final response = ref.read(paymentProvider).lastPaymentResponse!;
+        if (response is DeeplinkResponse) {
+          await launchUrl(Uri.parse(response.deeplink));
+        }
       }
     } catch (e) {
       _showSnackBar('Failed to generate deeplink: $e', isError: true);
@@ -382,7 +382,7 @@ class PaymentResultCard extends StatelessWidget {
     required this.isDark,
   });
 
-  final Map<String, dynamic> paymentResponse;
+  final PaymentRequestResponse paymentResponse;
   final bool isDark;
 
   @override
@@ -400,7 +400,7 @@ class PaymentResultCard extends StatelessWidget {
                 const Icon(Icons.check_circle, color: Colors.green),
                 const SizedBox(width: 8),
                 Text(
-                  'Payment Generated (${paymentResponse['type']})',
+                  'Payment Generated (${_getResponseType()})',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.green,
                   ),
@@ -445,7 +445,7 @@ class PaymentResultCard extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Text(
                         const JsonEncoder.withIndent('  ')
-                            .convert(paymentResponse),
+                            .convert(paymentResponse.toJson()),
                         style: TextStyle(
                           fontFamily: 'monospace',
                           color: isDark ? Colors.green[300] : Colors.green[800],
@@ -458,7 +458,7 @@ class PaymentResultCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (paymentResponse['svgQrCode'] != null) ...[
+            if (paymentResponse is SvgQrCodeResponse) ...[
               const SizedBox(height: 20),
               Text(
                 'QR Code Preview:',
@@ -492,14 +492,14 @@ class PaymentResultCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: SvgPicture.string(
-                      paymentResponse['svgQrCode'],
+                      (paymentResponse as SvgQrCodeResponse).svgQrCode,
                       fit: BoxFit.contain,
                     ),
                   ),
                 ),
               ),
             ],
-            if (paymentResponse['pngQrCodeBase64'] != null) ...[
+            if (paymentResponse is PngQrCodeResponse) ...[
               const SizedBox(height: 20),
               Text(
                 'PNG QR Code Preview:',
@@ -532,7 +532,9 @@ class PaymentResultCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: Image.memory(
-                      base64Decode(paymentResponse['pngQrCodeBase64']),
+                      base64Decode(_extractBase64FromPngDataUri(
+                          (paymentResponse as PngQrCodeResponse)
+                              .pngQrCodeDataUri)),
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -543,5 +545,27 @@ class PaymentResultCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getResponseType() {
+    if (paymentResponse is SvgQrCodeResponse) {
+      return 'SVG QR Code';
+    } else if (paymentResponse is PngQrCodeResponse) {
+      return 'PNG QR Code';
+    } else if (paymentResponse is DeeplinkResponse) {
+      return 'Deeplink';
+    } else {
+      return 'Payment Request';
+    }
+  }
+
+  String _extractBase64FromPngDataUri(String dataUri) {
+    // Data URI format: data:image/png;base64,<base64_string>
+    const prefix = 'data:image/png;base64,';
+    if (dataUri.startsWith(prefix)) {
+      return dataUri.substring(prefix.length);
+    }
+    // If it's already just base64, return as is
+    return dataUri;
   }
 }

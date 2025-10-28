@@ -72,16 +72,16 @@ class PngQrCodeResponse extends DeeplinkResponse {
   const PngQrCodeResponse({
     required super.id,
     required super.deeplink,
-    required this.pngQrCodeBase64,
+    required this.pngQrCodeDataUri,
   });
 
-  final String pngQrCodeBase64;
+  final String pngQrCodeDataUri;
 
   factory PngQrCodeResponse.fromJson(Map<String, dynamic> json) {
     return PngQrCodeResponse(
       id: json['id'],
       deeplink: json['deeplink'],
-      pngQrCodeBase64: json['pngQrCodeBase64'],
+      pngQrCodeDataUri: json['pngQrCodeDataUri'],
     );
   }
 
@@ -89,7 +89,7 @@ class PngQrCodeResponse extends DeeplinkResponse {
   Map<String, dynamic> toJson() {
     return {
       ...super.toJson(),
-      'pngQrCodeBase64': pngQrCodeBase64,
+      'pngQrCodeDataUri': pngQrCodeDataUri,
     };
   }
 }
