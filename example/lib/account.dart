@@ -50,9 +50,9 @@ class _AccountScreenState extends State<AccountScreen> {
 
     try {
       final sdk = BeansMerchantSdk.staging(apiKey: Constants.beansApiKey);
-      final accounts = await sdk.getCompanyAccounts();
+      final response = await sdk.getCompanyAccounts();
       setState(() {
-        _accounts = accounts;
+        _accounts = response.accounts;
         _isLoadingAccounts = false;
       });
     } catch (e) {

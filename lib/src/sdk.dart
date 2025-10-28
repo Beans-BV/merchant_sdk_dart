@@ -9,6 +9,8 @@ import 'models/company_account.dart';
 import 'models/create_company_account_response.dart';
 import 'models/delete_company_account_response.dart';
 import 'models/fetch_stellar_currencies_response.dart';
+import 'models/get_company_account_response.dart';
+import 'models/get_company_accounts_response.dart';
 import 'models/language_string.dart';
 import 'models/qr_code_response.dart';
 
@@ -329,17 +331,14 @@ class BeansMerchantSdk {
   }
 
   /// Fetches all merchant accounts
-  Future<List<CompanyAccount>> getCompanyAccounts() async {
+  Future<GetCompanyAccountsResponse> getCompanyAccounts() async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts'),
       headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {
-      // Parse the response body and get the accounts array
-      final Map<String, dynamic> jsonMap = jsonDecode(response.body);
-      final List<dynamic> jsonList = jsonMap['accounts'];
-      return jsonList.map((json) => CompanyAccount.fromJson(json)).toList();
+      return GetCompanyAccountsResponse.fromJson(jsonDecode(response.body));
     } else {
       throw ApiException(
         response.statusCode,
@@ -350,14 +349,15 @@ class BeansMerchantSdk {
   }
 
   /// Fetches a specific company account by Stellar account ID
-  Future<CompanyAccount> getCompanyAccount(String stellarAccountId) async {
+  Future<GetCompanyAccountResponse> getCompanyAccount(
+      String stellarAccountId) async {
     final response = await httpClient.get(
       Uri.parse('$apiBaseUrl/companies/me/accounts/$stellarAccountId'),
       headers: {'X-Beans-Company-Api-Key': apiKey},
     );
 
     if (response.statusCode == 200) {
-      return CompanyAccount.fromJson(jsonDecode(response.body));
+      return GetCompanyAccountResponse.fromJson(jsonDecode(response.body));
     } else {
       throw ApiException(
         response.statusCode,
