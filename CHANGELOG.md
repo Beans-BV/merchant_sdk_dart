@@ -1,11 +1,14 @@
-## 5.0.0
+## 5.0.1
+* Added `avatarUrl` to `CompanyAccount` class
 * Added `LanguageString` class for better multi-language support
-* Added `getCompanyAccounts()` method to fetch all company accounts
 * 
 * **BREAKING CHANGES:**
 *  - Renamed `getMerchantAccount()` to `getCompanyAccount()` for consistency
-*  - `createCompanyAccount()` now requires `LanguageString` instead of `Map<String, String>`
-*  - English language ('en') is now required for all `LanguageString` instances
+*  - The `createCompanyAccount()` method now requires `LanguageString` instead of `Map<String, String>`
+*  - English language is now required for all `LanguageString` instances
+*  - Modified `DeleteCompanyAccountResponse` class to return the status of the deletion
+*  - Added `GetCompanyAccountResponse` class to represent the response from the `getCompanyAccount()` method
+*  - Added `GetCompanyAccountsResponse` class to represent the response from the `getCompanyAccounts()` method
 
 ## 4.0.0
 * Beans API v4 support

@@ -2,7 +2,7 @@ name: beans_merchant_sdk
 description: "Beans Merchant API Library"
 homepage: https://github.com/Beans-BV/merchant_sdk_dart
 documentation: https://github.com/Beans-BV/merchant_sdk_dart
-version: 5.0.0
+version: 5.0.1
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
